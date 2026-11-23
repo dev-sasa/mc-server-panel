@@ -944,4 +944,9 @@ window.I18N_EN = { exact: {
   "Kein Changelog gefunden.": "No changelog found.",
   "Was sich im Panel geändert hat.": "What has changed in the panel.",
   "Info": "Info",
+  "{0} ms je Tick (Grenze 50 ms)": "{0} ms per tick (limit 50 ms)",
+  "du": "you",
+  "Letzter Login: {0}": "Last login: {0}",
+  "{0} Benutzer": "{0} users",
+  "1 Benutzer": "1 user",
 } };

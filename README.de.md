@@ -9,7 +9,7 @@ Ein selbst gehostetes Web-Panel, mit dem du einen Minecraft-Java-Server im Brows
 ![Node.js ≥ 18](https://img.shields.io/badge/Node.js-%E2%89%A5%2018-339933)
 
 <p align="center">
-  <img src="docs/screenshots/konsole.png" alt="Dashboard mit Status, Spielern, CPU- und RAM-Kurven und Live-Konsole" width="900">
+  <img src="docs/screenshots/de/konsole.png" alt="Dashboard mit Status, Spielern, CPU- und RAM-Kurven und Live-Konsole" width="900">
 </p>
 
 ## Inhalt
@@ -53,8 +53,8 @@ Ein selbst gehostetes Web-Panel, mit dem du einen Minecraft-Java-Server im Brows
 
 | | |
 |---|---|
-| ![Spieler](docs/screenshots/spieler.png) | ![Einstellungen](docs/screenshots/einstellungen.png) |
-| ![Installation](docs/screenshots/installation.png) | ![Benutzer](docs/screenshots/benutzer.png) |
+| ![Spieler](docs/screenshots/de/spieler.png) | ![Einstellungen](docs/screenshots/de/einstellungen.png) |
+| ![Installation](docs/screenshots/de/installation.png) | ![Benutzer](docs/screenshots/de/benutzer.png) |
 
 ## Schnellstart zum Ausprobieren
 

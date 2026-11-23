@@ -1,6 +1,6 @@
 # Screenshots für die README
 
-Lege hier diese fünf Bilder ab. Die README verweist unter genau diesen Namen darauf:
+Die Bilder liegen in zwei Unterordnern: `de/` (deutsche Oberfläche, für `README.de.md`) und `en/` (englische Oberfläche, für `README.md`). Die deutschen Dateien heißen wie unten, die englischen `console.png`, `players.png`, `settings.png`, `install.png` und `users.png`. Die README verweist unter genau diesen Namen darauf:
 
 | Datei | Seite im Panel | Tipp |
 |---|---|---|

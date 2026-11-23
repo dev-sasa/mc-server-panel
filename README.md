@@ -9,7 +9,7 @@ A self-hosted web panel for managing a Minecraft Java server in your browser: st
 ![Node.js ≥ 18](https://img.shields.io/badge/Node.js-%E2%89%A5%2018-339933)
 
 <p align="center">
-  <img src="docs/screenshots/konsole.png" alt="Dashboard with status, players, CPU and RAM charts and live console" width="900">
+  <img src="docs/screenshots/en/console.png" alt="Dashboard with status, players, CPU and RAM charts and live console" width="900">
 </p>
 
 ## Contents
@@ -53,8 +53,8 @@ A self-hosted web panel for managing a Minecraft Java server in your browser: st
 
 | | |
 |---|---|
-| ![Players](docs/screenshots/spieler.png) | ![Settings](docs/screenshots/einstellungen.png) |
-| ![Install](docs/screenshots/installation.png) | ![Users](docs/screenshots/benutzer.png) |
+| ![Players](docs/screenshots/en/players.png) | ![Settings](docs/screenshots/en/settings.png) |
+| ![Install](docs/screenshots/en/install.png) | ![Users](docs/screenshots/en/users.png) |
 
 ## Quick start to try it out
 

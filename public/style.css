@@ -795,3 +795,6 @@ main > section { flex: 0 0 auto; }
 .cl-group li { line-height: 1.5; }
 .cl-group li::marker { color: var(--accent); }
 .cl-group code { padding: 1px 6px; background: var(--bg); border: 1px solid var(--line); border-radius: 5px; font-size: .85em; }
+.foot-row .btn { white-space: nowrap; }
+.foot-row #themeBtn { flex: 0 0 auto; min-width: 48px; }
+.foot-row #logoutBtn { flex: 1 1 auto; }
