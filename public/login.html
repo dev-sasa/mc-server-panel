@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anmelden – MC Server Panel</title>
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+<div class="login">
+  <div class="lang-seg lang-float" role="group" aria-label="Sprache / Language"><button type="button" data-lang="de" title="Deutsch">DE</button><button type="button" data-lang="en" title="English">EN</button></div>
+  <form id="loginForm" class="login-card">
+    <img class="login-logo" src="/logo.svg" alt="">
+    <h1>MC Server Panel</h1>
+    <p class="sub">Melde dich an, um deinen Server zu verwalten.</p>
+    <div id="stepPw">
+      <label><span class="lbl"><i class="fa-solid fa-user" aria-hidden="true"></i> Benutzername</span>
+        <input id="loginUser" autocomplete="username" autofocus required>
+      </label>
+      <label><span class="lbl"><i class="fa-solid fa-lock" aria-hidden="true"></i> Passwort</span>
+        <input type="password" id="loginPw" autocomplete="current-password" required>
+      </label>
+    </div>
+    <div id="stepCode" class="hidden">
+      <label><span class="lbl"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Bestätigungscode</span>
+        <input id="loginCode" inputmode="numeric" autocomplete="one-time-code" maxlength="24" spellcheck="false" placeholder="6-stelliger Code">
+      </label>
+      <p class="hint-sm">Öffne deine Authenticator-App und gib den aktuellen Code ein. Ohne Handy geht auch ein Wiederherstellungscode.</p>
+    </div>
+    <button class="btn primary" id="loginBtn" type="submit"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Anmelden</button>
+    <p class="error" id="loginErr" role="alert"></p>
+    <div id="discordWrap" class="hidden">
+      <div class="or"><span>oder</span></div>
+      <a class="btn discord" href="/auth/discord"><i class="fa-brands fa-discord" aria-hidden="true"></i> Mit Discord anmelden</a>
+    </div>
+  </form>
+</div>
+<script src="i18n-en.js"></script>
+<script src="i18n.js"></script>
+<script src="login.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Node.js ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Syntax prüfen
+        run: npm run check
+
+      - name: Automatische Tests
+        run: npm test
+
+      - name: Smoke-Test (Dev-Modus, ohne Java)
+        env:
+          MCPANEL_DEV: "1"
+          MCPANEL_DEV_AUTOSTART: "0"
+          MCPANEL_PORT: "18080"
+        run: |
+          node server.js > panel.log 2>&1 &
+          for i in $(seq 1 40); do
+            curl -fs http://127.0.0.1:18080/login > /dev/null && break
+            sleep 0.5
+          done
+
+          echo "Login-Seite erreichbar"
+          curl -fs http://127.0.0.1:18080/login | grep -q "MC Server Panel"
+
+          echo "API ohne Anmeldung gesperrt"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/api/status)" = "401"
+
+          echo "Anmeldung und Status"
+          curl -fs -c cookies.txt -H 'Content-Type: application/json' \
+            -d '{"username":"admin","password":"dev"}' http://127.0.0.1:18080/api/login > /dev/null
+          curl -fs -b cookies.txt http://127.0.0.1:18080/api/status | grep -q '"state"'
+
+          echo "Rollenprüfung: falsche Zugangsdaten werden abgelehnt"
+          test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Content-Type: application/json' \
+            -d '{"username":"admin","password":"falsch"}' http://127.0.0.1:18080/api/login)" = "401"
+
+      - name: Panel-Log bei Fehler anzeigen
+        if: failure()
+        run: cat panel.log || true
+
+  docker:
+    name: Docker-Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Image bauen
+        run: docker build -t mc-server-panel .
+
+      - name: Container starten und Anmeldeseite prüfen
+        run: |
+          docker run -d --name panel -p 18090:8080 -e MCPANEL_PASSWORD=ci-test-passwort mc-server-panel
+          for i in $(seq 1 40); do
+            curl -fs http://127.0.0.1:18090/login > /dev/null && break
+            sleep 1
+          done
+          curl -fs http://127.0.0.1:18090/login | grep -q "MC Server Panel"
+          docker exec panel java -version
+          docker exec panel sh -c 'which tar unzip rsync ssh ps'
+
+      - name: Container-Log bei Fehler anzeigen
+        if: failure()
+        run: docker logs panel || true

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" shape-rendering="crispEdges">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1222"/>
+      <stop offset="0.6" stop-color="#16294a"/>
+      <stop offset="1" stop-color="#27456f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <!-- Sterne -->
+  <g fill="#cfe0ff" opacity=".7">
+    <rect x="120" y="90" width="4" height="4"/><rect x="340" y="200" width="4" height="4"/><rect x="520" y="60" width="4" height="4"/>
+    <rect x="760" y="140" width="4" height="4"/><rect x="980" y="80" width="4" height="4"/><rect x="1180" y="220" width="4" height="4"/>
+    <rect x="1380" y="100" width="4" height="4"/><rect x="1500" y="260" width="4" height="4"/><rect x="60" y="300" width="4" height="4"/>
+    <rect x="660" y="300" width="4" height="4"/><rect x="1260" y="40" width="4" height="4"/><rect x="900" y="260" width="4" height="4"/>
+  </g>
+  <!-- Mond -->
+  <rect x="1240" y="120" width="72" height="72" fill="#f1f5ff"/>
+  <rect x="1252" y="132" width="24" height="24" fill="#dbe4f7"/>
+  <!-- Hügel in Pixel-Stufen, hinten nach vorne -->
+  <path fill="#1d3a5a" d="M0 640 H160 V600 H320 V560 H520 V600 H640 V640 H840 V590 H1040 V540 H1240 V580 H1400 V620 H1600 V900 H0Z"/>
+  <path fill="#1f4a3a" d="M0 720 H120 V680 H280 V640 H440 V680 H600 V720 H760 V680 H920 V640 H1080 V600 H1240 V640 H1360 V680 H1600 V900 H0Z"/>
+  <path fill="#2b6a3a" d="M0 800 H200 V760 H360 V720 H520 V760 H700 V800 H860 V760 H1000 V720 H1160 V760 H1320 V800 H1600 V900 H0Z"/>
+  <path fill="#3a8a42" d="M0 860 H240 V830 H440 V800 H620 V830 H820 V860 H1040 V830 H1240 V800 H1440 V830 H1600 V900 H0Z"/>
+  <!-- Bäume -->
+  <g fill="#0f2f22"><rect x="300" y="650" width="16" height="40"/><rect x="276" y="610" width="64" height="48"/><rect x="292" y="580" width="32" height="40"/></g>
+  <g fill="#0f2f22"><rect x="1100" y="560" width="16" height="40"/><rect x="1076" y="520" width="64" height="48"/><rect x="1092" y="490" width="32" height="40"/></g>
+  <g fill="#17402c"><rect x="820" y="700" width="12" height="30"/><rect x="800" y="668" width="52" height="40"/><rect x="812" y="644" width="28" height="30"/></g>
+</svg>

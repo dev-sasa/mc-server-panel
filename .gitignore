@@ -1,0 +1,48 @@
+# Abhängigkeiten
+node_modules/
+
+# Laufzeitdaten des Panels (enthalten Benutzer, Passwort-Hashes, Discord-Zugang, Protokoll, Welten) – NIE committen
+config.json
+audit.jsonl*
+mods.json
+playerlog.json
+server/
+server.before-restore/
+backups/
+.dev/
+
+# Zugangsdaten und lokale Einstellungen
+.env
+.env.*
+!.env.example
+
+# Logs und temporäre Dateien
+*.log
+npm-debug.log*
+*.tmp
+*.part
+.installer-*.jar
+
+# Betriebssystem und Editoren
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Werkzeug-Konfiguration einzelner Entwickler
+.impeccable/
+
+# Daten, die Docker oder ein eigener Datenordner (MCPANEL_DATA) neben dem Projekt anlegt
+data/
+logs/
+crash-reports/
+.panel-test-*
+
+# Node-Werkzeuge
+.npm/
+.eslintcache
+coverage/
+
+# Lokale Einstellungen von Claude Code
+.claude/settings.local.json

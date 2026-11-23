@@ -1,0 +1,7 @@
+# Zeilenenden vereinheitlichen (LF), damit Diffs und Shell-Skripte überall gleich funktionieren
+* text=auto eol=lf
+
+# Binärdateien nicht anfassen
+*.woff2 binary
+*.png binary
+*.webp binary

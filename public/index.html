@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MC Server Panel</title>
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <script>
+    // Theme vor dem ersten Zeichnen setzen (kein Aufblitzen): gespeicherte Wahl, sonst Systemeinstellung
+    try {
+      var t = localStorage.getItem('mcp_theme');
+      if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.dataset.theme = t;
+    } catch (e) {}
+    try { if (localStorage.getItem('mcp_sidebar') === 'collapsed') document.documentElement.dataset.sidebar = 'collapsed'; } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app" class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand-row">
+      <a class="brand" href="/konsole"><img src="/logo.svg" alt=""><span>MC Server <b>Panel</b></span></a>
+      <button class="collapse-btn" id="collapseBtn" type="button"><i class="fa-solid fa-angles-left" aria-hidden="true"></i></button>
+    </div>
+    <nav id="tabs" aria-label="Hauptmenü">
+      <div class="nav-group">Server</div>
+      <a href="/konsole" data-tab="console" class="active"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i><span class="nav-text">Konsole</span></a>
+      <a href="/spieler" data-tab="players"><i class="fa-solid fa-users" aria-hidden="true"></i><span class="nav-text">Spieler</span></a>
+      <a href="/logs" data-tab="logs" data-perm="logs"><i class="fa-solid fa-scroll" aria-hidden="true"></i><span class="nav-text">Logs</span></a>
+      <a href="/backups" data-tab="backups" data-perm="backups.create|backups.manage"><i class="fa-solid fa-box-archive" aria-hidden="true"></i><span class="nav-text">Backups</span></a>
+      <div class="nav-group" data-perm="settings|files|install|logs">Verwaltung</div>
+      <a href="/einstellungen" data-tab="settings" data-perm="settings"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span class="nav-text">Einstellungen</span></a>
+      <a href="/dateien" data-tab="files" data-perm="files"><i class="fa-solid fa-folder-open" aria-hidden="true"></i><span class="nav-text">Dateien</span></a>
+      <a href="/installation" data-tab="install" data-perm="install"><i class="fa-solid fa-cloud-arrow-down" aria-hidden="true"></i><span class="nav-text">Installation</span></a>
+      <a href="/mods" data-tab="mods" data-perm="install"><i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i><span class="nav-text">Mods &amp; Plugins</span></a>
+      <div class="nav-group" data-perm="panel.config|users|audit">System</div>
+      <a href="/panel" data-tab="panel" data-perm="panel.config"><i class="fa-solid fa-gear" aria-hidden="true"></i><span class="nav-text">Panel</span></a>
+      <a href="/benutzer" data-tab="users" data-perm="users"><i class="fa-solid fa-user-shield" aria-hidden="true"></i><span class="nav-text">Benutzer</span></a>
+      <a href="/protokoll" data-tab="audit" data-perm="audit"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i><span class="nav-text">Protokoll</span></a>
+      <div class="nav-group">Info</div>
+      <a href="/changelog" data-tab="changelog"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span class="nav-text">Changelog</span></a>
+      <a href="/konto" data-tab="account" class="hidden" aria-hidden="true" tabindex="-1">Mein Konto</a>
+    </nav>
+    <div class="side-foot">
+      <button class="btn" id="whoami" data-tip="Mein Konto" aria-label="Mein Konto"></button>
+      <div class="foot-row">
+        <button class="btn" id="themeBtn" data-tip="Hell/Dunkel umschalten" aria-label="Hell/Dunkel umschalten"></button>
+        <button class="btn" id="logoutBtn" data-tip="Abmelden" aria-label="Abmelden"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span class="nav-text"> Abmelden</span></button>
+      </div>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="content">
+    <header class="topbar">
+      <button class="btn ic" id="menuBtn" aria-label="Menü öffnen"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+      <h1 id="pageTitle">Konsole</h1>
+      <div class="lang-seg" role="group" aria-label="Sprache / Language"><button type="button" data-lang="de" title="Deutsch">DE</button><button type="button" data-lang="en" title="English">EN</button></div>
+      <span class="status-pill" id="topPill" title="Server-Status"><span class="dot" id="topDot"></span><span id="topState">–</span><span class="pill-up" id="topUp"></span></span>
+    </header>
+
+    <main>
+      <!-- Konsole / Dashboard -->
+      <section id="tab-console">
+        <div class="card hero">
+          <div class="hero-main">
+            <img class="hero-logo" src="/logo.svg" alt="">
+            <div>
+              <div class="hero-title">
+                <h2 id="srvName">Minecraft-Server</h2>
+                <span class="status-pill"><span id="stateDot" class="dot"></span><span id="stateText">–</span><span class="pill-up" id="stateUp"></span></span>
+              </div>
+              <div class="hero-sub">
+                <span class="chip"><i class="fa-solid fa-cube" aria-hidden="true"></i><span id="srvVersion">Version unbekannt</span></span>
+                <span class="chip"><i class="fa-solid fa-earth-europe" aria-hidden="true"></i><span id="srvWorld">world</span></span>
+                <span class="chip hidden" id="srvNextChip" title="Nächster geplanter Neustart"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span id="srvNext"></span></span>
+              </div>
+            </div>
+          </div>
+          <div class="actions" data-perm="server.control">
+            <button class="btn ok" id="btnStart"><i class="fa-solid fa-play" aria-hidden="true"></i> Start</button>
+            <button class="btn warn" id="btnRestart"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Neustart</button>
+            <button class="btn" id="btnStop"><i class="fa-solid fa-stop" aria-hidden="true"></i> Stop</button>
+            <button class="btn danger" id="btnKill" title="Prozess hart beenden"><i class="fa-solid fa-skull-crossbones" aria-hidden="true"></i> Kill</button>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="card stat">
+            <div class="stat-label"><i class="fa-solid fa-users" aria-hidden="true"></i> Spieler</div>
+            <div class="stat-val"><span id="mPlayers">0</span><small> / <span id="mMax">20</span></small></div>
+            <div class="bar" id="plBar"><span></span></div>
+            <div class="heads" id="heads"></div>
+          </div>
+          <div class="card stat">
+            <div class="stat-label"><i class="fa-solid fa-microchip" aria-hidden="true"></i> CPU</div>
+            <div class="stat-val" id="mCpu">–</div>
+            <div class="stat-sub"><span id="mCores">–</span> · Load <span id="mLoad">–</span></div>
+            <svg class="spark" id="spCpu" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true"><path class="area"/><path class="line"/></svg>
+          </div>
+          <div class="card stat">
+            <div class="stat-label"><i class="fa-solid fa-memory" aria-hidden="true"></i> Arbeitsspeicher</div>
+            <div class="stat-val" id="mRam">–</div>
+            <div class="stat-sub" id="mRamSub">&nbsp;</div>
+            <svg class="spark" id="spRam" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true"><path class="area"/><path class="line"/></svg>
+            <div class="stat-sub sys-ram">System-RAM <span id="mSys">–</span></div>
+            <div class="bar" id="sysBar"><span></span></div>
+          </div>
+          <div class="card stat">
+            <div class="stat-label"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Server-Takt</div>
+            <div class="stat-val"><span id="mTps">–</span><small> TPS</small></div>
+            <div class="stat-sub" id="mMsptSub">&nbsp;</div>
+            <div class="bar" id="tpsBar"><span></span></div>
+          </div>
+        </div>
+
+        <div class="card console-card">
+          <div class="con-bar">
+            <div class="seg" id="conFilters" role="group" aria-label="Log filtern">
+              <button class="active" data-f="all">Alles</button>
+              <button data-f="chat"><i class="fa-solid fa-comment" aria-hidden="true"></i> Chat</button>
+              <button data-f="join"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Joins</button>
+              <button data-f="warn"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Warnungen</button>
+              <button data-f="err"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Fehler</button>
+            </div>
+            <div class="con-search">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+              <input id="conSearch" type="search" placeholder="Log durchsuchen…" aria-label="Log durchsuchen" autocomplete="off" spellcheck="false">
+            </div>
+            <button class="btn ic sm" id="conClear" title="Anzeige leeren"><i class="fa-solid fa-eraser" aria-hidden="true"></i></button>
+            <button class="btn ic sm" id="conDl" title="Log herunterladen"><i class="fa-solid fa-download" aria-hidden="true"></i></button>
+          </div>
+          <div id="console" class="console" aria-live="polite"></div>
+          <form id="cmdForm" class="cmd" data-perm="server.console">
+            <span class="prompt">/</span>
+            <input id="cmdInput" placeholder="Befehl eingeben, z. B. say Hallo   (↑ / ↓ = Verlauf)" autocomplete="off" spellcheck="false">
+            <button class="btn primary" type="submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Senden</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Einstellungen (server.properties) -->
+      <section id="tab-settings" class="hidden">
+        <div class="page-bar">
+          <div class="page-head">
+            <div class="page-icon"><i class="fa-solid fa-sliders" aria-hidden="true"></i></div>
+            <div>
+              <h2>Spiel-Einstellungen</h2>
+              <p class="muted">Die Datei <code>server.properties</code> – Regeln, Welt und Zugang.</p>
+            </div>
+          </div>
+          <button class="btn primary" id="propsSave"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Speichern</button>
+        </div>
+        <div class="notice" id="propsHint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span></span></div>
+        <div id="propsForm" class="set-wrap"></div>
+        <details class="more" id="propsMoreWrap">
+          <summary><i class="fa-solid fa-ellipsis" aria-hidden="true"></i> Weitere Einstellungen</summary>
+          <div class="card" style="margin-top:14px"><div id="propsMore"></div></div>
+        </details>
+      </section>
+
+      <!-- Dateien -->
+      <section id="tab-files" class="hidden">
+        <div class="card">
+          <div class="row between wrap">
+            <div id="crumbs" class="crumbs"></div>
+            <div class="row">
+              <button class="btn small" id="fNewFile"><i class="fa-solid fa-file-circle-plus" aria-hidden="true"></i> Datei</button>
+              <button class="btn small" id="fNewDir"><i class="fa-solid fa-folder-plus" aria-hidden="true"></i> Ordner</button>
+              <label class="btn small primary" style="margin:0"><i class="fa-solid fa-upload" aria-hidden="true"></i> Hochladen<input type="file" id="fUpload" multiple hidden></label>
+            </div>
+          </div>
+          <div class="f-tools">
+            <div class="con-search f-filter">
+              <i class="fa-solid fa-filter" aria-hidden="true"></i>
+              <input id="fFilter" type="search" placeholder="In diesem Ordner filtern…" aria-label="Dateien filtern" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="f-sel hidden" id="fSelBar">
+              <b id="fSelCount"></b>
+              <button class="btn small" id="fSelDl"><i class="fa-solid fa-file-zipper" aria-hidden="true"></i> Als Archiv laden</button>
+              <button class="btn small danger" id="fSelDel"><i class="fa-solid fa-trash" aria-hidden="true"></i> Löschen</button>
+              <button class="btn small" id="fSelNone">Auswahl aufheben</button>
+            </div>
+          </div>
+          <div class="up-box hidden" id="upBox" role="status">
+            <div class="up-row"><span id="upLabel"></span><button class="btn small" id="upCancel">Abbrechen</button></div>
+            <div class="bar"><span id="upBar"></span></div>
+          </div>
+          <table class="table" id="fileTable"></table>
+          <p class="muted f-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> Dateien einfach hierher ziehen, um sie in den geöffneten Ordner hochzuladen.</p>
+        </div>
+        <div class="drop-hint hidden" id="dropHint"><div><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i><b>Zum Hochladen loslassen</b><span id="dropWhere"></span></div></div>
+      </section>
+
+      <!-- Spieler -->
+      <section id="tab-players" class="hidden">
+        <div class="page-bar">
+          <div class="page-head">
+            <div class="page-icon"><i class="fa-solid fa-users" aria-hidden="true"></i></div>
+            <div>
+              <h2>Spieler</h2>
+              <p class="muted">Aktionen werden als Konsolenbefehl an den laufenden Server gesendet.</p>
+            </div>
+          </div>
+          <div class="row wrap" id="plActions" data-perm="players.manage">
+            <button class="btn" data-a="whitelist-add"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Whitelist</button>
+            <button class="btn" data-a="op"><i class="fa-solid fa-crown" aria-hidden="true"></i> OP geben</button>
+            <button class="btn warn" data-a="kick"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Kick</button>
+            <button class="btn danger" data-a="ban"><i class="fa-solid fa-ban" aria-hidden="true"></i> Ban</button>
+          </div>
+        </div>
+        <div class="seg pl-views" id="plViews" role="group" aria-label="Ansicht">
+          <button class="active" data-v="lists"><i class="fa-solid fa-list" aria-hidden="true"></i> Listen</button>
+          <button data-v="stats"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i> Alle Spieler &amp; Statistik</button>
+        </div>
+        <div class="card hidden" id="plStats">
+          <div class="pls-top">
+            <div class="con-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="plsQ" type="search" placeholder="Spieler suchen …" autocomplete="off" spellcheck="false" aria-label="Spieler suchen"></div>
+            <span class="muted" id="plsInfo"></span>
+          </div>
+          <table class="table pls-table" id="plsTable"></table>
+          <p class="muted pls-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Die Spielzeit kommt aus den Statistikdateien der Welt und gilt damit auch für die Zeit <b>vor</b> dem Panel. „Zuletzt gesehen“ und Beitritte stammen aus den Logs und den Spielerdaten, soweit sie noch vorhanden sind. Das Panel merkt sie sich ab jetzt dauerhaft.</p>
+        </div>
+        <div class="cols" id="plLists">
+          <div class="card"><div class="card-head"><h3><i class="fa-solid fa-signal" aria-hidden="true"></i> Online</h3><span class="count" id="cntOnline">0</span></div><ul id="plOnline" class="list"></ul></div>
+          <div class="card"><div class="card-head"><h3><i class="fa-solid fa-list-check" aria-hidden="true"></i> Whitelist</h3><span class="count" id="cntWhite">0</span></div><ul id="plWhite" class="list"></ul></div>
+          <div class="card"><div class="card-head"><h3><i class="fa-solid fa-crown" aria-hidden="true"></i> Operatoren</h3><span class="count" id="cntOps">0</span></div><ul id="plOps" class="list"></ul></div>
+          <div class="card"><div class="card-head"><h3><i class="fa-solid fa-ban" aria-hidden="true"></i> Gebannt</h3><span class="count" id="cntBanned">0</span></div><ul id="plBanned" class="list"></ul></div>
+        </div>
+      </section>
+
+      <!-- Backups -->
+      <section id="tab-backups" class="hidden">
+        <div class="page-bar">
+          <div class="page-head">
+            <div class="page-icon"><i class="fa-solid fa-box-archive" aria-hidden="true"></i></div>
+            <div>
+              <h2>Backups</h2>
+              <p class="muted">Sicherungen des Server-Ordners. Automatische Backups stellst du unter „Panel“ ein.</p>
+            </div>
+          </div>
+          <button class="btn primary" id="bkCreate" data-perm="backups.create"><i class="fa-solid fa-plus" aria-hidden="true"></i> Backup jetzt erstellen</button>
+        </div>
+        <div class="card bk-info" id="bkInfo"></div>
+        <div class="card"><table class="table" id="bkTable"></table></div>
+      </section>
+
+      <!-- Installation -->
+      <section id="tab-mods" class="hidden">
+        <div class="page-bar">
+          <div class="page-head">
+            <div class="page-icon"><i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i></div>
+            <div>
+              <h2>Mods &amp; Plugins</h2>
+              <p class="muted">Bei Modrinth suchen und mit einem Klick auf den Server installieren. Neue Dateien lädt der Server nach einem Neustart.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card mods-env">
+          <div class="mods-env-row">
+            <label><span class="lbl">Server-Software</span><select id="modSw"></select></label>
+            <label><span class="lbl">Minecraft-Version</span><input id="modVer" placeholder="z. B. 1.21.4" spellcheck="false"></label>
+            <button class="btn" id="modEnvSave"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Speichern</button>
+          </div>
+          <p class="hint" id="modEnvHint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span></span></p>
+        </div>
+        <div class="seg mods-tabs" id="modTabs" role="group" aria-label="Ansicht">
+          <button class="active" data-m="search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Suchen</button>
+          <button data-m="installed"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Installiert</button>
+        </div>
+        <div id="modSearchPane">
+          <form class="mods-search" id="modSearchForm">
+            <input id="modQ" type="search" placeholder="Name oder Stichwort, zum Beispiel WorldEdit" autocomplete="off" spellcheck="false">
+            <select id="modEnv" aria-label="Läuft auf">
+              <option value="server">Läuft auf dem Server</option>
+              <option value="client">Nur für Spieler (Client)</option>
+              <option value="all">Alle anzeigen</option>
+            </select>
+            <button class="btn primary" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Suchen</button>
+          </form>
+          <div id="modResults" class="mod-list"></div>
+          <div class="row" style="justify-content:center;margin-top:12px"><button class="btn hidden" id="modMore">Mehr anzeigen</button></div>
+          <p class="muted mods-note">Quelle: <a href="https://modrinth.com" target="_blank" rel="noopener">Modrinth</a>. Nicht jedes Paper-Plugin ist dort zu finden (zum Beispiel manche auf Hangar oder SpigotMC).</p>
+        </div>
+        <div id="modInstalledPane" class="hidden">
+          <div class="row" style="justify-content:flex-end;margin-bottom:10px"><button class="btn" id="modCheck"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Auf Updates prüfen</button></div>
+          <div class="card"><table class="table" id="modTable"></table></div>
+        </div>
+      </section>
+
+      <section id="tab-logs" class="hidden">
+        <div class="page-bar">
+          <div class="page-head">
+            <div class="page-icon"><i class="fa-solid fa-scroll" aria-hidden="true"></i></div>
+            <div>
+              <h2>Logs</h2>
+              <p class="muted">Alle Logdateien des Servers durchsuchen, auch ältere gepackte und Absturzberichte.</p>
+            </div>
+          </div>
+          <a class="btn" id="lgDownload" href="#"><i class="fa-solid fa-download" aria-hidden="true"></i> Datei laden</a>
+        </div>
+        <div class="card lg-filters">
+          <form id="lgForm" autocomplete="off">
+            <div class="lg-row">
+              <label class="lg-f"><span class="lbl">Datei</span><select id="lgFile"></select></label>
+              <label class="lg-f grow"><span class="lbl">Suchtext</span>
+                <span class="con-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="lgQ" type="search" placeholder="Text im Log, z. B. Fehler oder ein Befehl" spellcheck="false"></span></label>
+              <div class="lg-f lg-pp"><span class="lbl">Spieler</span>
+                <div class="pp" id="lgPP">
+                  <div class="pp-box"><span class="pp-chips" id="ppChips"></span><input class="pp-in" id="ppIn" placeholder="Spieler wählen oder Namen tippen …" autocomplete="off" spellcheck="false" aria-label="Spieler"></div>
+                  <div class="pp-menu hidden" id="ppMenu" role="listbox"></div>
+                </div>
+                <input type="hidden" id="lgPlayer"></div>
+            </div>
+            <div class="lg-row">
+              <div class="lg-f"><span class="lbl">Art</span>
+                <div class="seg multi" id="lgTypes" role="group" aria-label="Art">
+                  <button type="button" data-v="chat"><i class="fa-solid fa-comment" aria-hidden="true"></i> Chat</button>
+                  <button type="button" data-v="join"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Joins</button>
+                  <button type="button" data-v="command"><i class="fa-solid fa-terminal" aria-hidden="true"></i> Befehle</button>
+                  <button type="button" data-v="other"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i> Sonstiges</button>
+                </div></div>
+              <div class="lg-f"><span class="lbl">Ebene</span>
+                <div class="seg multi" id="lgLevels" role="group" aria-label="Ebene">
+                  <button type="button" data-v="INFO">Info</button>
+                  <button type="button" data-v="WARN"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Warnung</button>
+                  <button type="button" data-v="ERROR"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Fehler</button>
+                </div></div>
+              <label class="lg-f"><span class="lbl">Von</span><input type="date" id="lgFrom"></label>
+              <label class="lg-f"><span class="lbl">Bis</span><input type="date" id="lgTo"></label>
+              <div class="lg-f lg-btns"><button class="btn primary" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Suchen</button><button class="btn" type="button" id="lgReset">Zurücksetzen</button></div>
+            </div>
+          </form>
+        </div>
+        <div class="lg-meta" id="lgMeta"></div>
+        <div class="card lg-results"><div id="lgList" class="lg-list"></div>
+          <div class="row" style="justify-content:center;margin-top:12px"><button class="btn hidden" id="lgMore">Mehr laden</button></div></div>
+      </section>
+
+      <section id="tab-account" class="hidden">
+        <div class="page-bar">
+          <div class="page-head">
+            <div class="page-icon"><i class="fa-solid fa-circle-user" aria-hidden="true"></i></div>
+            <div>
+              <h2>Mein Konto</h2>
+              <p class="muted">Dein Profil, Verknüpfungen, Benachrichtigungen und Sicherheit.</p>
+            </div>
+          </div>
+        </div>
+        <div class="acc-grid">
+          <div class="card acc-profile">
+            <div class="acc-big" id="acHead"></div>
+            <div class="acc-id"><h3 id="acName"></h3><span class="badge" id="acRole"></span><p class="muted" id="acLast"></p></div>
+            <div class="acc-btns">
+              <button class="btn" id="acLogout"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Abmelden</button>
+              <button class="btn" id="acLogoutAll" title="Meldet dich auf allen Geräten und in allen Browsern ab"><i class="fa-solid fa-laptop-code" aria-hidden="true"></i> Überall abmelden</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3><i class="fa-solid fa-link" aria-hidden="true"></i> Verknüpfungen</h3></div>
+            <div class="field"><div class="field-text"><b>Minecraft-Account</b><small id="acMc">–</small></div><div class="field-ctl sw"><button class="btn small" id="acMcBtn"></button></div></div>
+            <div class="field"><div class="field-text"><b>Discord-ID</b><small id="acDc">–</small></div><div class="field-ctl sw"><button class="btn small" id="acDcBtn"></button></div></div>
+            <p class="hint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Mit der Discord-ID kannst du dich per Discord anmelden (wenn ein Admin das eingeschaltet hat) und Direktnachrichten vom Bot bekommen.</p>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Sicherheit</h3></div>
+            <div class="field"><div class="field-text"><b>Passwort</b><small>Ändern, danach musst du dich neu anmelden</small></div><div class="field-ctl sw"><button class="btn small" id="acPw">Ändern</button></div></div>
+            <div class="field"><div class="field-text"><b>Zwei-Faktor-Anmeldung</b><small id="acTf">–</small></div><div class="field-ctl sw"><button class="btn small" id="acTfBtn">Verwalten</button></div></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3><i class="fa-solid fa-language" aria-hidden="true"></i> Sprache</h3></div>
+            <div class="field"><div class="field-text"><b>Sprache der Oberfläche</b><small>Gilt nur für diesen Browser.</small></div><div class="field-ctl sw"><div class="lang-seg big" role="group" aria-label="Sprache / Language"><button type="button" data-lang="de" title="Deutsch">DE</button><button type="button" data-lang="en" title="English">EN</button></div></div></div>
+          </div>
+          <div class="card wide">
+            <div class="card-head"><h3><i class="fa-solid fa-bell" aria-hidden="true"></i> Meine Benachrichtigungen</h3></div>
+            <p class="card-sub">Wähle, worüber du informiert werden möchtest und wie.</p>
+            <div class="acc-ch">
+              <label class="check"><span class="switch"><input type="checkbox" id="anPanel"><span class="slider"></span></span> <span><b>Im Panel</b><small>Ein Hinweis erscheint, solange das Panel geöffnet ist.</small></span></label>
+              <label class="check"><span class="switch"><input type="checkbox" id="anBrowser"><span class="slider"></span></span> <span><b>Als Browser-Mitteilung</b><small>Auch wenn der Tab im Hintergrund ist. Gilt nur für diesen Browser.</small></span></label>
+              <label class="check"><span class="switch"><input type="checkbox" id="anDm"><span class="slider"></span></span> <span><b>Per Direktnachricht (DM) in Discord</b><small id="anDmHint">Eine private Nachricht von einem Bot, nur an dich.</small></span></label>
+            </div>
+            <h4 class="acc-h4">Worüber?</h4>
+            <div class="wh-events" id="anEvents"></div>
+            <div class="row" style="margin-top:16px"><button class="btn primary" id="anSave"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Speichern</button> <button class="btn" id="anDmTest" style="margin-left:8px"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Test-Nachricht an mich</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-changelog" class="hidden">
+        <div class="page-bar">
+          <div class="page-head">
+            <div class="page-icon"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></div>
+            <div>
+              <h2>Changelog</h2>
+              <p class="muted">Was sich im Panel geändert hat. <span class="chip" id="clVersion"></span></p>
+            </div>
+          </div>
+        </div>
+        <div id="clList" class="cl-list"></div>
+      </section>
+
+      <section id="tab-install" class="hidden">
+        <div class="page-head">
+          <div class="page-icon"><i class="fa-solid fa-cloud-arrow-down" aria-hidden="true"></i></div>
+          <div>
+            <h2>Installation</h2>
+            <p class="muted">Server-Software herunterladen und die Minecraft-EULA akzeptieren.</p>
+          </div>
+        </div>
+        <div class="card adopt">
+          <div class="card-head"><h3><i class="fa-solid fa-folder-open" aria-hidden="true"></i> Vorhandenen Server verwenden</h3><button class="btn small" id="adScan"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Server-Ordner prüfen</button></div>
+          <p class="card-sub">Du hast schon einen Server? Kopiere seine Dateien in den Server-Ordner (am einfachsten: als <code>.zip</code> im Dateimanager hochladen und entpacken, ohne Unterordner). Das Panel erkennt dann die Start-Datei, die Server-Software und die Version. Welt, Whitelist, OPs und Einstellungen werden direkt weiterverwendet.</p>
+          <div id="adResult"></div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-head"><h3><i class="fa-solid fa-cube" aria-hidden="true"></i> Server-Software</h3></div>
+            <div class="form">
+              <label><span class="lbl">Typ</span>
+                <select id="inType">
+                  <option value="paper" data-icon="fa-solid fa-scroll">Paper (empfohlen, Plugins)</option>
+                  <option value="purpur" data-icon="fa-solid fa-gem">Purpur (Paper + mehr Optionen)</option>
+                  <option value="folia" data-icon="fa-solid fa-leaf">Folia (Paper, Mehrkern)</option>
+                  <option value="fabric" data-icon="fa-solid fa-puzzle-piece">Fabric (Mods)</option>
+                  <option value="forge" data-icon="fa-solid fa-hammer">Forge (Mods)</option>
+                  <option value="neoforge" data-icon="fa-solid fa-fire-flame-curved">NeoForge (Mods)</option>
+                  <option value="vanilla" data-icon="fa-solid fa-cube">Vanilla (Mojang)</option>
+                </select></label>
+              <p class="muted" id="inHint" style="margin:-6px 0 0"></p>
+              <label><span class="lbl">Version</span><select id="inVersion"></select></label>
+            </div>
+            <button class="btn primary wide" id="inGo"><i class="fa-solid fa-download" aria-hidden="true"></i> Herunterladen &amp; installieren</button>
+            <p class="muted" style="margin:14px 0 0"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Ersetzt die vorhandene Server-JAR. Welten und Einstellungen bleiben erhalten.</p>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3><i class="fa-solid fa-file-signature" aria-hidden="true"></i> Minecraft-EULA</h3></div>
+            <p class="muted" style="margin-top:0">Der Server startet nur, wenn du die <a href="https://aka.ms/MinecraftEULA" target="_blank" rel="noopener">Minecraft EULA</a> akzeptiert hast.</p>
+            <div class="field stack" style="border:0;padding-top:6px">
+              <label class="check" style="margin:0"><span class="switch"><input type="checkbox" id="eulaBox"><span class="slider"></span></span> Ich akzeptiere die EULA</label>
+            </div>
+            <button class="btn wide" id="eulaSave" style="margin-top:18px"><i class="fa-solid fa-check" aria-hidden="true"></i> EULA speichern</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel -->
+      <section id="tab-panel" class="hidden">
+        <div class="page-bar">
+          <div class="page-head">
+            <div class="page-icon"><i class="fa-solid fa-gear" aria-hidden="true"></i></div>
+            <div>
+              <h2>Panel &amp; Start-Optionen</h2>
+              <p class="muted">Wie der Server gestartet wird, Automatik, Backups, Benachrichtigungen, Discord-Login und das Panel selbst.</p>
+            </div>
+          </div>
+          <button class="btn primary" id="cSave"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Speichern<span class="dirty-dot" aria-hidden="true"></span></button>
+        </div>
+        <div class="pn-tabs" id="pnTabs" role="tablist" aria-label="Bereiche">
+          <button class="active" data-g="server" role="tab"><i class="fa-solid fa-server" aria-hidden="true"></i> Server</button>
+          <button data-g="auto" role="tab"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Automatik &amp; Backups</button>
+          <button data-g="notify" role="tab"><i class="fa-solid fa-bell" aria-hidden="true"></i> Benachrichtigungen</button>
+          <button data-g="access" role="tab"><i class="fa-brands fa-discord" aria-hidden="true"></i> Anmeldung</button>
+        </div>
+        <p class="pn-note hidden" id="pnNote"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Bei Änderungen in dieser Ansicht oben auf „Speichern“ klicken. Die Karten „Benachrichtigungen“ und „Discord-Login“ haben ihren eigenen Speichern-Knopf.</p>
+        <div class="pn-group settings-grid" data-g="server">
+          <div class="card">
+            <div class="card-head"><h3><i class="fa-brands fa-java" aria-hidden="true"></i> Start-Optionen</h3></div>
+            <p class="card-sub">Mit diesen Werten wird der Minecraft-Server gestartet.</p>
+            <div class="field stack"><div class="field-text"><b>Java-Pfad</b><small>Programm, mit dem gestartet wird</small></div><div class="field-ctl"><input id="cJava"></div></div>
+            <div class="field stack"><div class="field-text"><b>Server-JAR</b><small id="cJarHint">Dateiname im Server-Ordner</small></div><div class="field-ctl"><input id="cJar"></div></div>
+            <div class="field"><div class="field-text"><b>RAM minimal</b><small>z. B. 1G</small></div><div class="field-ctl"><input id="cMin"></div></div>
+            <div class="field"><div class="field-text"><b>RAM maximal</b><small>z. B. 4G</small></div><div class="field-ctl"><input id="cMax"></div></div>
+            <div class="field stack"><div class="field-text"><b>Zusätzliche Java-Argumente</b><small>optional</small></div><div class="field-ctl"><input id="cExtra" placeholder="-XX:+UseG1GC"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3><i class="fa-solid fa-network-wired" aria-hidden="true"></i> Panel</h3></div>
+            <p class="card-sub">Das Panel selbst.</p>
+            <div class="field"><div class="field-text"><b>Panel-Port</b><small>Gilt nach Neustart des Panels</small></div><div class="field-ctl"><input id="cPort" type="number"></div></div>
+          </div>
+        </div>
+        <div class="pn-group settings-grid hidden" data-g="auto">
+          <div class="card">
+          <div class="card-head"><h3><i class="fa-solid fa-rotate" aria-hidden="true"></i> Automatik</h3></div>
+            <p class="card-sub">Neustarts, die das Panel für dich übernimmt.</p>
+            <div class="field"><div class="field-text"><b>Neustart nach Absturz</b><small>Maximal 3 Versuche in 10 Minuten</small></div><div class="field-ctl sw"><label class="switch" style="margin:0"><input type="checkbox" id="cAuto"><span class="slider"></span></label></div></div>
+            <div class="field stack">
+              <div class="field-text"><b>Täglicher Neustart</b><small>Der Server startet zu diesen Uhrzeiten neu (Serverzeit jetzt: <span id="cNow">–</span>). Mit „Speichern“ übernehmen.</small></div>
+              <div class="field-ctl">
+                <div class="time-chips" id="cTimes"></div>
+                <div class="time-add"><input type="time" id="cTimeNew" value="05:00" aria-label="Uhrzeit"><button type="button" class="btn small" id="cTimeAdd"><i class="fa-solid fa-plus" aria-hidden="true"></i> Hinzufügen</button></div>
+              </div>
+            </div>
+            <div class="field"><div class="field-text"><b>Spieler vorwarnen</b><small>Chat-Nachricht 5 und 1 Minute vor dem Neustart</small></div><div class="field-ctl sw"><label class="switch" style="margin:0"><input type="checkbox" id="cWarn"><span class="slider"></span></label></div></div>
+          </div>
+          <div class="card">
+          <div class="card-head"><h3><i class="fa-solid fa-box-archive" aria-hidden="true"></i> Automatische Backups</h3></div>
+            <p class="card-sub">Wann gesichert wird, was nicht gesichert wird und wohin zusätzlich kopiert wird.</p>
+            <div class="field stack">
+              <div class="field-text"><b>Feste Uhrzeiten</b><small>Täglich zu diesen Uhrzeiten (Serverzeit jetzt: <span id="cNow2">–</span>). Mit „Speichern“ übernehmen.</small></div>
+              <div class="field-ctl">
+                <div class="time-chips" id="cbTimes"></div>
+                <div class="time-add"><input type="time" id="cbTimeNew" value="04:00" aria-label="Uhrzeit"><button type="button" class="btn small" id="cbTimeAdd"><i class="fa-solid fa-plus" aria-hidden="true"></i> Hinzufügen</button></div>
+              </div>
+            </div>
+            <div class="field"><div class="field-text"><b>Zusätzlich alle … Stunden</b><small>0 = aus</small></div><div class="field-ctl"><input id="cBkH" type="number" min="0"></div></div>
+            <div class="field"><div class="field-text"><b>Automatische Backups behalten</b><small>Anzahl, 0 = alle</small></div><div class="field-ctl"><input id="cBkK" type="number" min="0"></div></div>
+            <div class="field stack">
+              <div class="field-text"><b>Zusätzlich kopieren nach</b><small>Zweiter Ort für jedes neue Backup (leer = aus): ein Ordner wie <code>/mnt/nas/backups</code> oder per SSH <code>benutzer@host:/ordner</code> (rsync, Schlüssel ohne Passwort nötig). Aufbewahrung räumt das Panel dort nicht auf.</small></div>
+              <div class="field-ctl copy-row"><input id="cBkCopy" spellcheck="false" placeholder="/mnt/nas/backups"><button type="button" class="btn small" id="cBkCopyTest"><i class="fa-solid fa-plug" aria-hidden="true"></i> Testen</button></div>
+            </div>
+            <div class="field stack">
+              <div class="field-text"><b>Nicht sichern</b><small>Ein Eintrag pro Zeile, relativ zum Server-Ordner, <code>*</code> ist erlaubt. Beispiele: <code>logs</code>, <code>*.log</code>, <code>plugins/dynmap/web/tiles</code></small></div>
+              <div class="field-ctl"><textarea id="cBkEx" rows="4" spellcheck="false" placeholder="logs"></textarea></div>
+            </div>
+          </div>
+        </div>
+        <div class="pn-group hidden" data-g="notify">
+          <div class="card">
+          <div class="card-head">
+            <h3><i class="fa-solid fa-bell" aria-hidden="true"></i> Discord-Benachrichtigungen</h3>
+            <span class="pill" id="whStatus">–</span>
+          </div>
+          <p class="muted">Das Panel schreibt in einen Discord-Kanal, wenn etwas passiert – zum Beispiel bei einem Absturz. Lege dafür in Discord unter <b>Kanal bearbeiten → Integrationen → Webhooks</b> einen Webhook an und füge die Adresse hier ein. Die Adresse wird nach dem Speichern nicht mehr angezeigt.</p>
+          <div class="form form-2">
+            <label class="check"><span class="switch"><input type="checkbox" id="whEnabled"><span class="slider"></span></span> Benachrichtigungen aktivieren</label>
+            <span></span>
+            <label class="span2"><span class="lbl">Webhook-Adresse</span><input type="password" id="whUrl" autocomplete="off" spellcheck="false" placeholder="https://discord.com/api/webhooks/…"></label>
+          </div>
+          <div class="wh-events" id="whEvents"></div>
+          <h4 class="acc-h4">Direktnachrichten (optional)</h4>
+          <p class="muted">Damit Benutzer Hinweise <b>privat per DM</b> bekommen können, braucht das Panel einen Discord-Bot. Im <a href="https://discord.com/developers/applications" target="_blank" rel="noopener">Developer Portal</a> eine Application anlegen, unter <b>Bot</b> einen Token erzeugen und hier eintragen. Der Bot muss mit den Benutzern einen Server teilen (einladen über <b>OAuth2 → URL Generator → bot</b>), und die Benutzer müssen dort Direktnachrichten von Servermitgliedern erlauben. Der Bot braucht keine Rechte.</p>
+          <div class="form"><label><span class="lbl">Bot-Token <span class="pill" id="botStatus">–</span></span><input type="password" id="botToken" autocomplete="off" spellcheck="false" placeholder="Token des Bots"></label></div>
+          <button class="btn danger small hidden" id="botClear" style="margin-top:10px"><i class="fa-solid fa-trash" aria-hidden="true"></i> Bot-Token löschen</button>
+          <div class="row" style="gap:8px;margin-top:14px">
+            <button class="btn primary" id="whSave"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Speichern</button>
+            <button class="btn" id="whTest"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Test senden</button>
+            <button class="btn danger hidden" id="whClear"><i class="fa-solid fa-trash" aria-hidden="true"></i> Adresse löschen</button>
+          </div>
+        </div>
+        </div>
+        <div class="pn-group hidden" data-g="access">
+          <div class="card">
+            <div class="card-head">
+              <h3><i class="fa-brands fa-discord" aria-hidden="true"></i> Discord-Login</h3>
+              <span class="pill" id="dStatus">–</span>
+            </div>
+            <p class="card-sub">Benutzer können sich zusätzlich über Discord anmelden. Das klappt nur, wenn beim Benutzer (Seite „Benutzer“ oder „Mein Konto“) die passende Discord-ID hinterlegt ist.</p>
+            <ol class="steps">
+              <li>Im <a href="https://discord.com/developers/applications" target="_blank" rel="noopener">Discord Developer Portal</a> eine Application anlegen.</li>
+              <li>Unter <b>OAuth2</b> die Redirect-URI eintragen: <code id="dSuggest"></code></li>
+              <li>Client-ID und Client-Secret hier eintragen, den Login aktivieren und mit dem Knopf unten in dieser Karte speichern.</li>
+            </ol>
+            <p class="hint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Die eigene Discord-ID findest du mit aktiviertem Entwicklermodus per Rechtsklick auf dein Profil → „Benutzer-ID kopieren“. Oder du versuchst den Login einmal: dann wird dir die ID angezeigt.</p>
+            <div class="form form-2">
+              <label class="check"><span class="switch"><input type="checkbox" id="dEnabled"><span class="slider"></span></span> Discord-Login aktivieren</label>
+              <span></span>
+              <label><span class="lbl">Client-ID</span><input id="dId" inputmode="numeric"></label>
+              <label><span class="lbl">Client-Secret</span><input type="password" id="dSecret" autocomplete="off" placeholder="(unverändert lassen)"></label>
+              <label class="span2"><span class="lbl">Redirect-URI <small>(leer = automatisch)</small></span><input id="dRedirect"></label>
+            </div>
+            <button class="btn primary" id="dSave"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Speichern</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Protokoll -->
+      <section id="tab-audit" class="hidden">
+        <div class="page-bar">
+          <div class="page-head">
+            <div class="page-icon"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></div>
+            <div>
+              <h2>Protokoll</h2>
+              <p class="muted">Wer hat wann was im Panel getan? Nur für Admins sichtbar.</p>
+            </div>
+          </div>
+          <button class="btn" id="auRefresh"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Aktualisieren</button>
+        </div>
+        <div class="card">
+          <div class="au-bar">
+            <select id="auCat" aria-label="Kategorie">
+              <option value="">Alle Kategorien</option>
+              <option value="auth">Anmeldung</option>
+              <option value="server">Server</option>
+              <option value="console">Konsole</option>
+              <option value="players">Spieler</option>
+              <option value="files">Dateien</option>
+              <option value="settings">Einstellungen</option>
+              <option value="backups">Backups</option>
+              <option value="users">Benutzer</option>
+            </select>
+            <div class="con-search">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+              <input id="auSearch" type="search" placeholder="Benutzer, Aktion oder Details suchen…" aria-label="Protokoll durchsuchen" autocomplete="off" spellcheck="false">
+            </div>
+            <span class="count" id="auCount"></span>
+          </div>
+          <div id="auList" class="au-list"></div>
+          <button class="btn hidden" id="auMore" style="margin:16px auto 0"><i class="fa-solid fa-angles-down" aria-hidden="true"></i> Mehr laden</button>
+        </div>
+      </section>
+
+      <!-- Benutzer -->
+      <section id="tab-users" class="hidden users-page">
+        <div class="page-head">
+          <div class="page-icon"><i class="fa-solid fa-user-shield" aria-hidden="true"></i></div>
+          <div>
+            <h2>Benutzer &amp; Zugänge</h2>
+            <p class="muted">Lege fest, wer das Panel nutzen darf und was er dort tun kann.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3><i class="fa-solid fa-user-group" aria-hidden="true"></i> Zugänge</h3>
+            <span class="count" id="userCount"></span>
+          </div>
+          <div id="userList" class="user-list"></div>
+          <p class="hint" style="margin:18px 0 0"><i class="fa-brands fa-discord" aria-hidden="true"></i> Anmeldung über Discord richtest du auf der Seite <a href="/panel">Panel</a> ein. Hier trägst du bei jedem Benutzer die Discord-ID ein.</p>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-head"><h3><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Benutzer hinzufügen</h3></div>
+            <div class="form">
+              <label><span class="lbl"><i class="fa-solid fa-user" aria-hidden="true"></i> Benutzername</span>
+                <input id="uName" autocomplete="off" placeholder="z. B. max"></label>
+              <label><span class="lbl"><i class="fa-solid fa-lock" aria-hidden="true"></i> Passwort <small>(min. 8 Zeichen)</small></span>
+                <input type="password" id="uPass" autocomplete="new-password"></label>
+              <label><span class="lbl"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> Rolle</span>
+                <select id="uRole">
+                  <option value="moderator" data-icon="fa-solid fa-shield-halved">Moderator</option>
+                  <option value="viewer" data-icon="fa-solid fa-eye">Betrachter</option>
+                  <option value="admin" data-icon="fa-solid fa-crown">Admin</option>
+                </select></label>
+              <label><span class="lbl"><i class="fa-solid fa-cube" aria-hidden="true"></i> Minecraft-Name <small>(optional, für den Avatar)</small></span>
+                <input id="uMc" maxlength="16" placeholder="z. B. Notch" spellcheck="false"></label>
+              <label><span class="lbl"><i class="fa-brands fa-discord" aria-hidden="true"></i> Discord-ID <small>(optional)</small></span>
+                <input id="uDisc" inputmode="numeric" placeholder="z. B. 123456789012345678"></label>
+            </div>
+            <button class="btn primary wide" id="uAdd"><i class="fa-solid fa-plus" aria-hidden="true"></i> Benutzer anlegen</button>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Rollen &amp; Rechte</h3>
+              <button class="btn small primary hidden" id="roleNew"><i class="fa-solid fa-plus" aria-hidden="true"></i> Neue Rolle</button>
+            </div>
+            <ul class="role-info" id="roleList"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Allgemeiner Dialog (ersetzt Browser-confirm/prompt) -->
+<dialog id="uiDlg">
+  <form id="uiForm" class="pl-dlg" autocomplete="off">
+    <div class="ui-head">
+      <span class="ui-ic" id="uiIc"><i id="uiIcon" aria-hidden="true"></i></span>
+      <h2 id="uiTitle"></h2>
+    </div>
+    <p id="uiMsg" class="ui-msg"></p>
+    <label id="uiInputWrap"><span id="uiLabel" class="lbl"></span><input id="uiInput" spellcheck="false"></label>
+    <p class="error" id="uiErr" role="alert"></p>
+    <div class="row end">
+      <button type="button" class="btn" id="uiCancel">Abbrechen</button>
+      <button type="submit" class="btn primary" id="uiOk">OK</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Minecraft-Account verknüpfen -->
+<dialog id="mcDlg">
+  <form id="mcForm" class="pl-dlg" autocomplete="off">
+    <div class="ui-head">
+      <span class="ui-ic"><i class="fa-solid fa-cube" aria-hidden="true"></i></span>
+      <h2 id="mcTitle">Minecraft-Account verknüpfen</h2>
+    </div>
+    <p class="ui-msg">Der Name wird bei Mojang geprüft. Dein Spieler-Kopf erscheint dann als Avatar.</p>
+    <label><span class="lbl">Minecraft-Name</span>
+      <input id="mcName" maxlength="16" placeholder="z. B. Notch" spellcheck="false">
+    </label>
+    <div id="mcMj" class="mj hidden" aria-live="polite"></div>
+    <p class="error" id="mcErr" role="alert"></p>
+    <div class="row end">
+      <button type="button" class="btn danger" id="mcRemove"><i class="fa-solid fa-link-slash" aria-hidden="true"></i> Entfernen</button>
+      <span class="grow"></span>
+      <button type="button" class="btn" id="mcCancel">Abbrechen</button>
+      <button type="submit" class="btn primary" id="mcOk">Verknüpfen</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Backup wiederherstellen (alles oder Auswahl) -->
+<dialog id="rsDlg">
+  <form id="rsForm" class="pl-dlg" autocomplete="off">
+    <div class="ui-head">
+      <span class="ui-ic danger"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>
+      <h2>Backup wiederherstellen</h2>
+    </div>
+    <p class="ui-msg" id="rsName" style="margin-bottom:12px"></p>
+    <div class="seg" id="rsMode" role="group" aria-label="Umfang" style="align-self:flex-start;margin-bottom:14px">
+      <button type="button" class="active" data-m="all"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Alles</button>
+      <button type="button" data-m="pick"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Auswahl</button>
+    </div>
+    <p class="ui-msg" id="rsAllHint">Der gesamte Server-Ordner wird durch dieses Backup ersetzt. Der aktuelle Stand bleibt als „.before-restore“ erhalten. Der Server muss gestoppt sein.</p>
+    <div id="rsPick" class="hidden">
+      <div class="rs-tree" id="rsTree"></div>
+      <p class="ui-msg" id="rsPickHint" style="margin:10px 0 0">Nur die angehakten Ordner und Dateien werden ersetzt, alles andere bleibt, wie es ist. Der bisherige Stand der gewählten Einträge bleibt in „.before-restore“. Der Server muss gestoppt sein.</p>
+    </div>
+    <p class="error" id="rsErr" role="alert"></p>
+    <div class="row end">
+      <button type="button" class="btn" id="rsCancel">Abbrechen</button>
+      <button type="submit" class="btn danger" id="rsOk">Alles wiederherstellen</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Rolle anlegen / bearbeiten -->
+<dialog id="roleDlg">
+  <form id="roleForm" class="pl-dlg" autocomplete="off">
+    <div class="ui-head">
+      <span class="ui-ic"><i class="fa-solid fa-user-tag" aria-hidden="true"></i></span>
+      <h2 id="roleTitle">Neue Rolle</h2>
+    </div>
+    <label><span class="lbl">Name der Rolle</span>
+      <input id="roleName" maxlength="32" placeholder="z. B. Helfer" spellcheck="false">
+    </label>
+    <p class="ui-msg" style="margin-bottom:10px">Jeder Benutzer darf Status, Konsolen-Log und Spielerlisten ansehen. Hier legst du fest, was die Rolle zusätzlich darf.</p>
+    <div id="rolePerms" class="perm-list"></div>
+    <p class="error" id="roleErr" role="alert"></p>
+    <div class="row end">
+      <button type="button" class="btn" id="roleCancel">Abbrechen</button>
+      <button type="submit" class="btn primary" id="roleOk">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Konto / Passwort -->
+<dialog id="pwDlg">
+  <form id="pwForm" class="pl-dlg" autocomplete="off">
+    <h2>Mein Konto</h2>
+    <div class="acc-mc">
+      <span id="accHead" class="acc-head"></span>
+      <div class="acc-text"><b id="accMcName"></b><small>Minecraft-Account (dein Avatar im Panel)</small></div>
+      <button type="button" class="btn small" id="accMcBtn"></button>
+    </div>
+    <h3 class="acc-pw">Zwei-Faktor-Anmeldung</h3>
+    <div class="acc-mc">
+      <span class="acc-head"><span class="ph"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span></span>
+      <div class="acc-text"><b id="tfState">…</b><small id="tfSmall">Schützt dein Konto zusätzlich mit einem Code aus einer Authenticator-App.</small></div>
+      <div class="row" style="gap:6px;flex-wrap:nowrap">
+        <button type="button" class="btn small hidden" id="tfRecBtn" title="Neue Wiederherstellungscodes erzeugen"><i class="fa-solid fa-life-ring" aria-hidden="true"></i></button>
+        <button type="button" class="btn small" id="tfBtn">Einrichten</button>
+      </div>
+    </div>
+    <h3 class="acc-pw">Passwort ändern</h3>
+    <label>Aktuelles Passwort <input type="password" id="pwCur" autocomplete="current-password" required></label>
+    <label>Neues Passwort (min. 8 Zeichen) <input type="password" id="pwNew" autocomplete="new-password" required minlength="8"></label>
+    <p class="error" id="pwErr" role="alert"></p>
+    <div class="row end">
+      <button type="button" class="btn" id="pwCancel">Abbrechen</button>
+      <button type="submit" class="btn primary">Ändern</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Mod-Version wählen -->
+<dialog id="modDlg">
+  <form method="dialog" class="pl-dlg">
+    <h2 id="modDlgTitle">Version wählen</h2>
+    <div id="modDlgList" class="mod-vers"></div>
+    <div class="row end"><button class="btn" id="modDlgClose" type="button">Schließen</button></div>
+  </form>
+</dialog>
+
+<!-- Zwei-Faktor einrichten -->
+<dialog id="tfDlg">
+  <form id="tfForm" class="pl-dlg" autocomplete="off">
+    <div id="tfStep1">
+      <h2>Zwei-Faktor-Anmeldung einrichten</h2>
+      <p class="ui-msg">Scanne den QR-Code mit einer Authenticator-App (zum Beispiel Aegis, Google Authenticator oder 2FAS) und gib danach den angezeigten 6-stelligen Code ein.</p>
+      <div id="tfQr" class="tf-qr" aria-label="QR-Code"></div>
+      <p class="tf-manual">Oder gib den Schlüssel von Hand ein:<br><code id="tfSecret"></code></p>
+      <label>Code aus der App <input id="tfCode" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="123456" required></label>
+      <p class="error" id="tfErr" role="alert"></p>
+      <div class="row end">
+        <button type="button" class="btn" id="tfCancel">Abbrechen</button>
+        <button type="submit" class="btn primary">Aktivieren</button>
+      </div>
+    </div>
+    <div id="tfStep2" class="hidden">
+      <h2>Wiederherstellungscodes</h2>
+      <p class="ui-msg">Bewahre diese Codes sicher auf (zum Beispiel im Passwortmanager). Jeder Code funktioniert <b>einmal</b> und ersetzt den App-Code, falls du dein Handy verlierst. Sie werden <b>nur jetzt</b> angezeigt.</p>
+      <div id="tfCodes" class="tf-codes"></div>
+      <div class="row end">
+        <button type="button" class="btn" id="tfCopy"><i class="fa-regular fa-copy" aria-hidden="true"></i> Kopieren</button>
+        <button type="button" class="btn primary" id="tfDone">Fertig</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<!-- Spieler-Details -->
+<dialog id="plDet">
+  <div class="pl-dlg pld">
+    <div class="pld-head"><span id="pldHead"></span><div><h2 id="pldName"></h2><div class="pls-badges" id="pldBadges"></div></div></div>
+    <div class="pld-tiles" id="pldTiles"></div>
+    <h3 class="acc-h4">Ban-Verlauf</h3>
+    <div id="pldHist" class="pld-hist"></div>
+    <div class="row end"><button class="btn" id="pldClose" type="button">Schließen</button></div>
+  </div>
+</dialog>
+
+<!-- Spieler-Dialog -->
+<dialog id="plDlg">
+  <form id="plDlgForm" class="pl-dlg" autocomplete="off">
+    <h2 id="plDlgTitle"></h2>
+    <div class="seg hidden" id="plDlgKind" role="group" aria-label="Spielertyp" style="margin-bottom:16px;align-self:flex-start">
+      <button type="button" class="active" data-k="java"><i class="fa-brands fa-java" aria-hidden="true"></i> Java</button>
+      <button type="button" data-k="bedrock"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> Bedrock</button>
+    </div>
+    <label><span id="plDlgNameLbl">Spielername</span>
+      <input id="plDlgName" maxlength="17" placeholder="Name eingeben oder unten auswählen" spellcheck="false">
+    </label>
+    <div id="plDlgMj" class="mj hidden" aria-live="polite"></div>
+    <p class="ui-msg hidden" id="plDlgHint"></p>
+    <div id="plDlgSug" class="sug"></div>
+    <label id="plDlgReasonWrap">Grund (optional)
+      <input id="plDlgReason" placeholder="z. B. Griefing">
+    </label>
+    <p class="error" id="plDlgErr" role="alert"></p>
+    <div class="row end">
+      <button type="button" class="btn" id="plDlgCancel">Abbrechen</button>
+      <button type="submit" class="btn primary" id="plDlgOk">OK</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Editor-Dialog -->
+<dialog id="editor">
+  <form method="dialog" class="editor-box">
+    <div class="row between"><strong id="edName"></strong><span class="muted" id="edMsg"></span></div>
+    <textarea id="edText" spellcheck="false"></textarea>
+    <div class="row end">
+      <button class="btn" value="cancel">Schließen</button>
+      <button class="btn primary" type="button" id="edSave"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast hidden"></div>
+<script src="i18n-en.js"></script>
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

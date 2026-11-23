@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <!-- Isometrischer Grasblock -->
+  <polygon points="16,2 29,9 16,16 3,9" fill="#74c94b"/>
+  <polygon points="3,9 16,16 16,29 3,22" fill="#8b5a33"/>
+  <polygon points="16,16 29,9 29,22 16,29" fill="#6b4224"/>
+  <polygon points="3,9 16,16 16,20 3,13" fill="#56a13a"/>
+  <polygon points="16,16 29,9 29,13 16,20" fill="#3f8a2b"/>
+  <!-- Pixel-Details -->
+  <rect x="13" y="6" width="3" height="2" fill="#93de6b"/>
+  <rect x="19" y="9" width="3" height="2" fill="#5fb23c"/>
+  <rect x="8" y="9" width="2" height="2" fill="#5fb23c"/>
+  <rect x="6" y="17" width="2" height="2" fill="#6b4224"/>
+  <rect x="10" y="21" width="2" height="2" fill="#a06b3e"/>
+  <rect x="22" y="18" width="2" height="2" fill="#593519"/>
+  <rect x="25" y="14" width="2" height="2" fill="#593519"/>
+  <rect x="19" y="24" width="2" height="2" fill="#7e5230"/>
+</svg>

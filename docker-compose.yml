@@ -1,0 +1,26 @@
+# MC Server Panel mit Docker Compose
+#   docker compose up -d --build
+#   docker compose logs panel      # beim ersten Start steht hier das Passwort für "admin"
+# Danach im Browser: http://SERVER-IP:8080
+services:
+  panel:
+    build: .
+    image: mc-server-panel
+    restart: unless-stopped
+    ports:
+      - "8080:8080"        # Panel. Mit Reverse-Proxy besser nur lokal: "127.0.0.1:8080:8080"
+      - "25565:25565"      # Minecraft (Java). Bei Geyser/Bedrock zusätzlich "19132:19132/udp"
+    volumes:
+      - mcdata:/data       # Welten, Backups, Konfiguration. Wer lieber einen Ordner nutzt: ./data:/data
+                           # (dann vorher: mkdir data && sudo chown 1000:1000 data)
+    environment:
+      # MCPANEL_PASSWORD: "ein-langes-startpasswort"   # nur beim allerersten Start; sonst wird eins erzeugt und im Log gezeigt
+      # Hinter einem Reverse-Proxy: Anzahl der Proxys, damit die echte Adresse der Besucher erkannt wird
+      # MCPANEL_TRUST_PROXY: "1"
+      TZ: Europe/Berlin    # Serverzeit für Neustart- und Backup-Zeiten
+    # Gibt dem Minecraft-Server Zeit zum sauberen Speichern beim Beenden
+    stop_grace_period: 60s
+    # mem_limit: 4g        # Obergrenze für das ganze Paket (muss größer sein als der RAM des Minecraft-Servers)
+
+volumes:
+  mcdata:

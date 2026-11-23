@@ -1,0 +1,17 @@
+[Unit]
+Description=MC Server Panel
+After=network.target
+
+[Service]
+Type=simple
+User=mcpanel
+WorkingDirectory=/opt/mcpanel
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+# Gibt dem Minecraft-Server Zeit zum sauberen Speichern beim Beenden
+TimeoutStopSec=45
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
