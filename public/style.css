@@ -798,3 +798,22 @@ main > section { flex: 0 0 auto; }
 .foot-row .btn { white-space: nowrap; }
 .foot-row #themeBtn { flex: 0 0 auto; min-width: 48px; }
 .foot-row #logoutBtn { flex: 1 1 auto; }
+
+.cl-btn { display: none; }
+.cl-btn #clBtnVer { font-size: .78rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cl-btn + .lang-seg { margin-left: 8px; }
+@media (max-width: 560px) { .cl-btn #clBtnVer { display: none; } }
+
+/* Kopfleiste rechts: einheitliche Kapseln gleicher Höhe */
+.tb-right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex: none; }
+.tb-chip, .tb-right .lang-seg, .tb-right .status-pill { box-sizing: border-box; height: 36px; margin: 0; }
+.tb-chip { display: inline-flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 99px; text-decoration: none; color: var(--text); font-size: .82rem; font-weight: 600; background: var(--panel); border: 1px solid var(--line); transition: border-color .12s, background .12s; }
+.tb-chip i { color: var(--accent); font-size: .85rem; }
+.tb-chip:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: var(--panel2); }
+.tb-chip #clBtnVer { font-variant-numeric: tabular-nums; }
+.tb-right .lang-seg { align-items: center; padding: 3px; }
+.tb-right .lang-seg button { height: 28px; padding: 0 12px; display: inline-flex; align-items: center; }
+.tb-sep { width: 1px; height: 22px; background: var(--line); margin: 0 2px; }
+.tb-right .status-pill { padding: 0 16px; display: inline-flex; align-items: center; }
+.topbar h1 { flex: 1; }
+@media (max-width: 760px) { .tb-sep { display: none; } .tb-right { gap: 6px; } .tb-chip #clBtnVer { display: none; } .tb-chip { padding: 0 11px; } .tb-right .status-pill .pill-up { display: none; } }

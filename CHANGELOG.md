@@ -1,61 +1,77 @@
 # Changelog
 
-Alle wichtigen Änderungen an diesem Projekt stehen hier. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen folgen [Semantic Versioning](https://semver.org/lang/de/).
+[Deutsch](CHANGELOG.de.md) · **English**
 
-## [Unveröffentlicht]
+All notable changes to this project are listed here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+## [1.0.2] – 2026-11-23
+
+### Added
+- `CHANGELOG`, `SECURITY` and `CONTRIBUTING` are now available in English (default) and German (`*.de.md`). The Changelog page in the panel shows the language of the interface.
+- The changelog has a button with the version number at the top right.
+- Screenshots for both languages (`docs/screenshots/de/` and `en/`).
+
+### Changed
+- The language is now only switched under "My account → Language" (and on the sign-in page). The toggle in the header bar is gone; the header shows the changelog button and the status in consistent pills.
+- The "Changelog" menu item in the sidebar is gone; open the page via the button at the top right.
+- The English interface texts were reviewed page by page and completed.
+- `.claude/` (local tool settings) is now in `.gitignore`.
 
 ## [1.0.1] – 2026-11-23
 
-### Hinzugefügt
-- Die Dokumentation ist jetzt zweisprachig: `README.md` und `INSTALLATION.md` sind englisch (Standard auf GitHub), die deutschen Fassungen heißen `README.de.md` und `INSTALLATION.de.md`.
-- **Spielerstatistik rückwirkend:** Neue Ansicht „Alle Spieler & Statistik“ mit Spielzeit, Toden und Mob-Kills (aus den Statistikdateien der Welt, also auch für die Zeit vor dem Panel), zuletzt gesehen, erstem Besuch und Beitritten (aus Logs und Spielerdaten, dazu eine Merkdatei `playerlog.json`). Ein Klick auf einen Spieler zeigt Details und den **Ban-Verlauf** mit Begründung, aus aktuellen Bans, Logs und dem Panel-Protokoll.
-- **Vorhandenen Server einbinden:** Auf der Seite „Installation“ erkennt „Server-Ordner prüfen“ Start-Datei, Server-Software und Minecraft-Version (auch Forge und NeoForge über die Argumentdatei) und übernimmt sie auf Wunsch.
-- Die Laufzeit steht neben „Läuft“ in der Statusanzeige (Sekunden immer zweistellig). Mods lassen sich nach „läuft auf dem Server“ oder „nur Client“ filtern, jeder Treffer hat einen Knopf „Bei Modrinth öffnen“. Die Spielerauswahl in den Logs zeigt Avatare.
-- **Direktnachrichten (DM)** in Discord: Mit einem Bot-Token (Panel → Benachrichtigungen) kann jeder Benutzer unter „Mein Konto“ wählen, Hinweise privat zu bekommen, inklusive Test-Nachricht. Der Token wird nie angezeigt.
-- Sprachumschalter als Feld „DE | EN“ (oben, auf der Anmeldeseite und unter „Mein Konto“). Der Menüpunkt „Logs“ steht jetzt in der Gruppe „Server“.
-- **Logs-Seite:** alle Logdateien (aktuell, gepackt, Absturzberichte) lesen und durchsuchen, mit Filtern nach Spieler, Art, Ebene und Datum, Hervorhebung der Treffer und Download. Neues Recht „Server-Logs durchsuchen“ (Moderatoren haben es).
-- **Mein Konto** als eigene Seite: Minecraft-Account, Discord-ID (mit Passwort), Passwort, 2FA, „Überall abmelden“ und **persönliche Benachrichtigungen** (Hinweis im Panel, Browser-Mitteilung, je Ereignis wählbar).
-- **Panel-Seite überarbeitet:** Bereiche als Reiter (Server, Automatik & Backups, Benachrichtigungen, Anmeldung), Kurzbeschreibungen und eine Markierung bei ungespeicherten Änderungen.
-- **Zwei-Faktor-Anmeldung** (TOTP, RFC 6238) mit Authenticator-App, QR-Code und acht Wiederherstellungscodes. Admins können sie für Benutzer zurücksetzen. Die Anmeldung per Discord bleibt ohne zweiten Faktor.
-- **Mods und Plugins** über Modrinth suchen und mit einem Klick installieren (inklusive Pflicht-Abhängigkeiten, SHA-512-Prüfung, Update-Prüfung, Entfernen). Neue Seite `/mods`.
-- **TPS und MSPT** im Dashboard (Paper-Familie über `tps`/`mspt`, Vanilla und Fabric über `tick query`). Die Laufzeit steht jetzt im Kopf der Karte, der System-RAM bei der RAM-Kachel.
-- Die **Spielerliste** wird alle 90 Sekunden mit `list` abgeglichen, damit niemand fehlt oder hängen bleibt. Die Antworten der automatischen Abfragen erscheinen nicht in der Konsole.
-- **Discord-Benachrichtigungen** per Webhook (online, gestoppt, Absturz, Backup, Lag, Spieler kommen und gehen) mit Testknopf.
-- Backups: **Speicherplatz-Prüfung** vor dem Sichern, **Prüfung des Archivs** danach (defekte Backups werden verworfen), Anzeige des freien Speichers, Schaltfläche zum erneuten Prüfen und **optionale Kopie** in einen anderen Ordner oder per rsync/SSH auf einen anderen Rechner.
-- Dateimanager: **Upload mit Fortschritt** und **Drag & Drop**, **Mehrfachauswahl** (löschen, als `.tar.gz` laden), **Archive entpacken** (`.zip`, `.tar.gz`, `.tgz`, `.tar`; unsichere Archive mit Pfaden nach außen oder Symlinks werden abgelehnt) und Filter.
-- **Deutsch und Englisch** (Schalter oben rechts und auf der Anmeldeseite).
-- **Docker:** `Dockerfile` und `docker-compose.yml` (Panel und Java 21 in einem Image). **`install.sh`** richtet das Panel als systemd-Dienst ein.
-- **Automatische Tests** (`npm test`, rund 50 Tests) und eine CI-Stufe, die sie ausführt, dazu ein Docker-Build.
-- Umgebungsvariablen `MCPANEL_DATA` (Datenordner), `MCPANEL_TRUST_PROXY`, `MCPANEL_COOKIE_SECURE`, `DISCORD_WEBHOOK_URL`.
-- **Eigene Rollen mit einzelnen Rechten** (elf Rechte, zum Beispiel Server steuern, Dateien, Einstellungen, Protokoll). Admins legen Rollen an, ändern und löschen sie und weisen sie Benutzern zu. Wer Benutzer verwalten darf, kann nur Rollen vergeben und Benutzer bearbeiten, deren Rechte er selbst hat.
+### Added
+- The documentation is now bilingual: `README.md` and `INSTALLATION.md` are in English (the default on GitHub), and the German versions are named `README.de.md` and `INSTALLATION.de.md`.
+- **Retroactive player statistics:** New view "All players & statistics" with playtime, deaths and mob kills (from the world's statistics files, so it also covers the time before the panel), last seen, first visit and joins (from logs and player data, plus a memory file `playerlog.json`). Clicking a player shows details and the **ban history** with reasons, drawn from current bans, logs and the panel's activity log.
+- **Import an existing server:** On the "Install" page, "Check server folder" detects the start file, server software and Minecraft version (including Forge and NeoForge via the arguments file) and applies them on request.
+- The uptime is shown next to "Running" in the status display (seconds always two digits). Mods can be filtered by "runs on the server" or "client only", and every result has an "Open on Modrinth" button. The player selection in the logs shows avatars.
+- **Direct messages (DMs)** on Discord: With a bot token (Panel → Notifications), every user can choose under "My account" to receive notifications privately, including a test message. The token is never displayed.
+- Language switch as a "DE | EN" toggle (on the sign-in page and under "My account"). The "Logs" menu item is now in the "Server" group.
+- **Logs page:** read and search all log files (current, compressed, crash reports), with filters by player, type, level and date, highlighting of matches and download. New permission "Search server logs" (moderators have it).
+- **My account** as its own page: Minecraft account, Discord ID (with password), password, 2FA, "Sign out everywhere" and **personal notifications** (notice in the panel, browser notification, selectable per event).
+- **Panel page revised:** sections as tabs (Server, Automation & backups, Notifications, Sign-in), short descriptions and a marker for unsaved changes.
+- **Two-factor sign-in** (TOTP, RFC 6238) with an authenticator app, QR code and eight recovery codes. Admins can reset it for users. Sign-in via Discord remains without a second factor.
+- **Mods and plugins:** search Modrinth and install with one click (including required dependencies, SHA-512 verification, update check, removal). New page `/mods`.
+- **TPS and MSPT** on the dashboard (Paper family via `tps`/`mspt`, Vanilla and Fabric via `tick query`). The uptime is now in the card header, and the system RAM is shown on the RAM tile.
+- The **player list** is reconciled with `list` every 90 seconds so that nobody is missing or stuck. The responses to the automatic queries do not appear in the console.
+- **Discord notifications** via webhook (online, stopped, crash, backup, lag, players joining and leaving) with a test button.
+- Backups: **free-space check** before saving, **archive verification** afterwards (corrupt backups are discarded), display of free storage, a button to check again, and an **optional copy** to another folder or to another machine via rsync/SSH.
+- File manager: **upload with progress** and **drag & drop**, **multi-select** (delete, download as `.tar.gz`), **extract archives** (`.zip`, `.tar.gz`, `.tgz`, `.tar`; unsafe archives with paths pointing outside or symlinks are rejected) and a filter.
+- **German and English** (toggle at the top right and on the sign-in page).
+- **Docker:** `Dockerfile` and `docker-compose.yml` (panel and Java 21 in one image). **`install.sh`** sets up the panel as a systemd service.
+- **Automated tests** (`npm test`, around 50 tests) and a CI stage that runs them, plus a Docker build.
+- Environment variables `MCPANEL_DATA` (data folder), `MCPANEL_TRUST_PROXY`, `MCPANEL_COOKIE_SECURE`, `DISCORD_WEBHOOK_URL`.
+- **Custom roles with individual permissions** (eleven permissions, for example control server, files, settings, activity log). Admins create, edit and delete roles and assign them to users. Anyone who may manage users can only assign roles and edit users whose permissions they hold themselves.
 
-### Geändert
-- Der Quelltext ist in Module aufgeteilt (`lib/` und `routes/`); das Verhalten bleibt gleich. Die Aufteilung ist durch die neuen Tests abgesichert.
-- **Sicherheit:** Das Sitzungs-Cookie bekommt bei HTTPS das `Secure`-Flag. Die Anmelde-Sperre zählt je echter Besucher-Adresse (`X-Forwarded-For`, nur von vertrauenswürdigen Proxys, Standard `loopback`) statt je Proxy-Adresse. Die Redirect-URI für Discord folgt demselben Schutz.
-- Beim Lesen einer fehlenden Datei meldet der Dateimanager „nicht gefunden“ (404) statt eines Serverfehlers.
-- Menü, Seiten und Schaltflächen richten sich nach den einzelnen Rechten statt nach drei Stufen.
-- Backups: Neben dem Intervall gibt es jetzt **feste Uhrzeiten** (zum Beispiel täglich 04:00).
-- Backups: Ordner und Dateien lassen sich vom Backup **ausschließen** (Standard: `logs`, `crash-reports`, `cache`).
-- Wiederherstellen: Es lässt sich **alles** oder eine **Auswahl** von Ordnern und Dateien zurückspielen. Der bisherige Stand der gewählten Einträge bleibt in `server.before-restore`; bei einem Fehler wird automatisch zurückgerollt.
-- Ein geplanter Neustart wartet, bis ein laufendes Backup fertig ist.
+### Changed
+- The source code is split into modules (`lib/` and `routes/`); behavior stays the same. The split is backed by the new tests.
+- **Security:** The session cookie gets the `Secure` flag over HTTPS. The sign-in lockout counts per real visitor address (`X-Forwarded-For`, only from trusted proxies, default `loopback`) instead of per proxy address. The redirect URI for Discord follows the same protection.
+- When reading a missing file, the file manager reports "not found" (404) instead of a server error.
+- Menu, pages and buttons follow the individual permissions instead of three levels.
+- Backups: Besides the interval there are now **fixed times** (for example daily at 04:00).
+- Backups: Folders and files can be **excluded** from the backup (default: `logs`, `crash-reports`, `cache`).
+- Restore: **everything** or a **selection** of folders and files can be restored. The previous state of the selected entries is kept in `server.before-restore`; on an error it is rolled back automatically.
+- A scheduled restart waits until a running backup has finished.
 
 ## [1.0.0] – 2026-11-23
 
-Erste veröffentlichte Version.
+First published version.
 
-### Hinzugefügt
-- Dashboard mit Status, Spielerköpfen, CPU- und RAM-Kurven, Live-Konsole mit Filter und Suche, Befehle senden, Start/Stop/Neustart/Kill.
-- Installation von Paper, Purpur, Folia, Fabric, Forge, NeoForge und Vanilla.
-- `server.properties` als gruppierte Liste mit Schaltern und Erklärungen.
-- Dateimanager mit Texteditor, Upload und Download.
-- Spielerverwaltung (Whitelist, OP, Kick, Ban) mit Mojang-Prüfung; Erkennung von Bedrock-Spielern (Geyser/Floodgate), Whitelist über `/fwhitelist`.
-- Backups: manuell und automatisch, Download und Wiederherstellung.
-- Automatik: Neustart nach Absturz, geplanter täglicher Neustart mit Chat-Warnung, Backup-Zeitplan.
-- Benutzer mit Rollen (Admin, Moderator, Betrachter), geschütztem Hauptbenutzer, Minecraft-Avatar und Discord-Login.
-- Protokoll aller Aktionen für Admins (ohne IP-Adressen).
-- Helles und dunkles Design, einklappbares Seitenmenü, mobile Ansicht.
-- Dev-Modus mit simuliertem Minecraft-Server (`npm run dev`).
-- Anleitung für die Installation auf einem Linux-Server (`INSTALLATION.de.md`).
+### Added
+- Dashboard with status, player heads, CPU and RAM graphs, live console with filter and search, sending commands, start/stop/restart/kill.
+- Installation of Paper, Purpur, Folia, Fabric, Forge, NeoForge and Vanilla.
+- `server.properties` as a grouped list with switches and explanations.
+- File manager with text editor, upload and download.
+- Player management (whitelist, OP, kick, ban) with Mojang verification; detection of Bedrock players (Geyser/Floodgate), whitelist via `/fwhitelist`.
+- Backups: manual and automatic, download and restore.
+- Automation: restart after a crash, scheduled daily restart with chat warning, backup schedule.
+- Users with roles (Admin, Moderator, Viewer), a protected main user, Minecraft avatar and Discord login.
+- Log of all actions for admins (without IP addresses).
+- Light and dark design, collapsible side menu, mobile view.
+- Dev mode with a simulated Minecraft server (`npm run dev`).
+- Guide for installation on a Linux server (`INSTALLATION.md`).
 
+[1.0.2]: https://github.com/dev-sasa/mc-server-panel/releases/tag/v1.0.2
 [1.0.1]: https://github.com/dev-sasa/mc-server-panel/releases/tag/v1.0.1
 [1.0.0]: https://github.com/dev-sasa/mc-server-panel/releases/tag/v1.0.0

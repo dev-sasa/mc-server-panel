@@ -16,7 +16,7 @@ ENV JAVA_HOME=/opt/java/openjdk PATH=/opt/java/openjdk/bin:$PATH
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
-COPY server.js CHANGELOG.md ./
+COPY server.js CHANGELOG.md CHANGELOG.de.md ./
 COPY lib ./lib
 COPY routes ./routes
 COPY public ./public

@@ -5,7 +5,7 @@ title: ""
 labels: bug
 ---
 
-> **Sicherheitslücke?** Bitte nicht hier melden, sondern privat, siehe [SECURITY.md](../blob/main/SECURITY.md).
+> **Security vulnerability?** Please do not report it here, but privately, see [SECURITY.md](../blob/main/SECURITY.md).
 
 ## Was ist passiert?
 

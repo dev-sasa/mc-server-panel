@@ -13,6 +13,7 @@ test
 docs
 *.md
 !CHANGELOG.md
+!CHANGELOG.de.md
 .DS_Store
 .impeccable
 .claude

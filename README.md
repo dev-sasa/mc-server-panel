@@ -246,7 +246,7 @@ There is no build step: changes to `public/` are visible after reloading the pag
 
 ## Contributing
 
-Bugs, ideas and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first (German only). Changes are listed in the [CHANGELOG.md](CHANGELOG.md).
+Bugs, ideas and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first. Changes are listed in the [CHANGELOG.md](CHANGELOG.md).
 
 ## License and acknowledgments
 

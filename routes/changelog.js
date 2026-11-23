@@ -1,5 +1,5 @@
 'use strict';
-// Änderungsverlauf: liest CHANGELOG.md und gibt ihn gegliedert zurück
+// Änderungsverlauf: liest CHANGELOG.md (Englisch) oder CHANGELOG.de.md (Deutsch) und gibt ihn gegliedert zurück
 const fsp = require('fs/promises');
 const path = require('path');
 const { app } = require('../lib/app');
@@ -21,7 +21,8 @@ function parse(md) {
 
 app.get('/api/changelog', wrap(async (req, res) => {
   let md = '', version = '';
-  try { md = await fsp.readFile(path.join(ROOT, 'CHANGELOG.md'), 'utf8'); } catch {}
+  const file = req.query.lang === 'de' ? 'CHANGELOG.de.md' : 'CHANGELOG.md';
+  try { md = await fsp.readFile(path.join(ROOT, file), 'utf8'); } catch { try { md = await fsp.readFile(path.join(ROOT, 'CHANGELOG.de.md'), 'utf8'); } catch {} }
   try { version = JSON.parse(await fsp.readFile(path.join(ROOT, 'package.json'), 'utf8')).version; } catch {}
   res.json({ version, entries: parse(md) });
 }));

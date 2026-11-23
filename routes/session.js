@@ -13,9 +13,11 @@ app.post('/api/logout', (req, res) => {
   clearSessionCookie(req, res);
   res.json({ ok: true });
 });
+let APP_VERSION = '';
+try { APP_VERSION = require('../package.json').version; } catch {}
 app.get('/api/me', (req, res) => {
   const me = findUser(req.user);
-  res.json({ ok: true, username: req.user, role: req.role, roleName: roleDef(req.role).name, perms: [...permsOf(me)], minecraft: me.minecraft || null });
+  res.json({ ok: true, version: APP_VERSION, username: req.user, role: req.role, roleName: roleDef(req.role).name, perms: [...permsOf(me)], minecraft: me.minecraft || null });
 });
 app.put('/api/me/minecraft', wrap(async (req, res) => {
   const mcNew = await resolveMinecraft(req.body.minecraft);

@@ -222,6 +222,7 @@ function applyRole() {
 
 let myMc = null, myName = '', myRoleLabel = '';
 function renderWhoami(me) {
+  if (me.version) $('#clBtnVer').textContent = 'v' + me.version;
   myMc = me.minecraft || null; myName = me.username; myRoleLabel = me.roleName;
   const b = $('#whoami'); b.textContent = '';
   b.append(myMc ? head(myMc.uuid, 24) : fa('fa-solid fa-circle-user'), el('span', { textContent: `${me.username} · ${myRoleLabel}` }));
@@ -2206,13 +2207,14 @@ function clInline(s) { // **fett**, `Code`, [Text](Adresse) – ohne innerHTML
 }
 async function loadChangelog() {
   try {
-    const { version, entries } = await api('GET', '/api/changelog');
+    const { version, entries } = await api('GET', '/api/changelog?lang=' + LANG);
     $('#clVersion').textContent = version ? 'Version ' + version : '';
     const box = $('#clList'); box.textContent = '';
     if (!entries.length) box.append(el('div', { className: 'bk-empty' }, fa('fa-regular fa-file-lines'), 'Kein Changelog gefunden.'));
-    const ICON = { 'Hinzugefügt': ['fa-solid fa-plus', 'add'], 'Geändert': ['fa-solid fa-pen', 'chg'], 'Behoben': ['fa-solid fa-wrench', 'fix'], 'Entfernt': ['fa-solid fa-trash', 'del'], 'Sicherheit': ['fa-solid fa-shield-halved', 'sec'] };
+    const ICON = { 'Hinzugefügt': ['fa-solid fa-plus', 'add'], 'Geändert': ['fa-solid fa-pen', 'chg'], 'Behoben': ['fa-solid fa-wrench', 'fix'], 'Entfernt': ['fa-solid fa-trash', 'del'], 'Sicherheit': ['fa-solid fa-shield-halved', 'sec'],
+      Added: ['fa-solid fa-plus', 'add'], Changed: ['fa-solid fa-pen', 'chg'], Fixed: ['fa-solid fa-wrench', 'fix'], Removed: ['fa-solid fa-trash', 'del'], Security: ['fa-solid fa-shield-halved', 'sec'] };
     entries.forEach((e) => {
-      const unreleased = /^unver/i.test(e.version);
+      const unreleased = /^(unver|unrel)/i.test(e.version);
       box.append(el('div', { className: 'card cl-entry' },
         el('div', { className: 'cl-head' }, el('h3', { textContent: unreleased ? 'Neueste Änderungen' : 'Version ' + e.version }), e.date ? el('span', { className: 'chip', textContent: e.date }) : '', unreleased ? el('span', { className: 'chip', title: 'Diese Änderungen sind schon im Panel, haben aber noch keine eigene Versionsnummer.', textContent: 'noch ohne Versionsnummer' }) : ''),
         ...e.notes.map((n) => el('p', { className: 'muted', textContent: n })),
@@ -2226,6 +2228,7 @@ async function loadChangelog() {
   } catch (e) { toast(e.message, 'err'); }
 }
 
+$('#clBtn').addEventListener('click', (e) => { e.preventDefault(); showTab('changelog'); });
 // Sprache umschalten (Deutsch / English)
 $$('.lang-seg button').forEach((b) => {
   b.classList.toggle('on', b.dataset.lang === LANG);

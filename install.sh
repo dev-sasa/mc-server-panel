@@ -54,7 +54,7 @@ fi
 mkdir -p "$INSTALL_DIR"
 if [ "$(cd "$INSTALL_DIR" && pwd)" != "$SRC" ]; then
   say "Kopiere das Panel nach $INSTALL_DIR."
-  for item in server.js CHANGELOG.md package.json package-lock.json lib routes public dev mcpanel.service LICENSE; do
+  for item in server.js CHANGELOG.md CHANGELOG.de.md package.json package-lock.json lib routes public dev mcpanel.service LICENSE; do
     [ -e "$SRC/$item" ] && { rm -rf "${INSTALL_DIR:?}/$item"; cp -R "$SRC/$item" "$INSTALL_DIR/$item"; }
   done
 fi

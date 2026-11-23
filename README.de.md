@@ -196,7 +196,7 @@ Das Panel kann Dateien ändern und Befehle auf dem Server ausführen. Behandle e
 - Die **Anmeldung per Discord** gilt als vertrauenswürdig und fragt keinen zweiten Faktor ab, weil Discord selbst schützen kann (zum Beispiel mit eigener 2FA).
 - Die Webhook-Adresse für Benachrichtigungen wird nach dem Speichern nie wieder angezeigt.
 
-Schwachstellen bitte nicht öffentlich als Issue melden, sondern wie in **[SECURITY.md](SECURITY.md)** beschrieben.
+Schwachstellen bitte nicht öffentlich als Issue melden, sondern wie in **[SECURITY.de.md](SECURITY.de.md)** beschrieben.
 
 ## Datenschutz und externe Dienste
 
@@ -246,7 +246,7 @@ Es gibt keinen Build-Schritt: Änderungen an `public/` sind nach dem Neuladen de
 
 ## Mitmachen
 
-Fehler, Ideen und Pull Requests sind willkommen. Lies bitte zuerst [CONTRIBUTING.md](CONTRIBUTING.md). Änderungen stehen im [CHANGELOG.md](CHANGELOG.md).
+Fehler, Ideen und Pull Requests sind willkommen. Lies bitte zuerst [CONTRIBUTING.de.md](CONTRIBUTING.de.md). Änderungen stehen im [CHANGELOG.de.md](CHANGELOG.de.md).
 
 ## Lizenz und Danksagung
 

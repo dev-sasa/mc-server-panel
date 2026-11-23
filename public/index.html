@@ -40,8 +40,7 @@
       <a href="/panel" data-tab="panel" data-perm="panel.config"><i class="fa-solid fa-gear" aria-hidden="true"></i><span class="nav-text">Panel</span></a>
       <a href="/benutzer" data-tab="users" data-perm="users"><i class="fa-solid fa-user-shield" aria-hidden="true"></i><span class="nav-text">Benutzer</span></a>
       <a href="/protokoll" data-tab="audit" data-perm="audit"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i><span class="nav-text">Protokoll</span></a>
-      <div class="nav-group">Info</div>
-      <a href="/changelog" data-tab="changelog"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span class="nav-text">Changelog</span></a>
+      <a href="/changelog" data-tab="changelog" class="hidden" aria-hidden="true" tabindex="-1">Changelog</a>
       <a href="/konto" data-tab="account" class="hidden" aria-hidden="true" tabindex="-1">Mein Konto</a>
     </nav>
     <div class="side-foot">
@@ -58,8 +57,10 @@
     <header class="topbar">
       <button class="btn ic" id="menuBtn" aria-label="Menü öffnen"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
       <h1 id="pageTitle">Konsole</h1>
-      <div class="lang-seg" role="group" aria-label="Sprache / Language"><button type="button" data-lang="de" title="Deutsch">DE</button><button type="button" data-lang="en" title="English">EN</button></div>
-      <span class="status-pill" id="topPill" title="Server-Status"><span class="dot" id="topDot"></span><span id="topState">–</span><span class="pill-up" id="topUp"></span></span>
+      <div class="tb-right">
+        <a class="tb-chip" id="clBtn" href="/changelog" title="Changelog" aria-label="Changelog"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span id="clBtnVer"></span></a>
+        <span class="status-pill tb-status" id="topPill" title="Server-Status"><span class="dot" id="topDot"></span><span id="topState">–</span><span class="pill-up" id="topUp"></span></span>
+      </div>
     </header>
 
     <main>

@@ -1,43 +1,45 @@
-# Sicherheit
+# Security
 
-Das MC Server Panel kann Dateien auf dem Server ändern, Befehle ausführen und Prozesse steuern. Sicherheitslücken sind deshalb besonders ernst.
+[Deutsch](SECURITY.de.md) · **English**
 
-## Schwachstelle melden
+MC Server Panel can change files on the server, run commands and control processes. Security vulnerabilities are therefore taken especially seriously.
 
-Bitte melde Sicherheitslücken **nicht** als öffentliches Issue oder in einer Diskussion.
+## Reporting a vulnerability
 
-Nutze stattdessen die private Meldefunktion von GitHub:
+Please do **not** report vulnerabilities as a public issue or in a discussion.
 
-1. Öffne den Reiter **Security** dieses Repositorys.
-2. Klicke auf **Report a vulnerability**.
-3. Beschreibe, was passiert, wie man es nachstellt und welche Version betroffen ist.
+Use GitHub's private reporting feature instead:
 
-Ich antworte so schnell wie möglich, bitte gib mir aber einige Tage Zeit. Bis ein Fix veröffentlicht ist, bitte nichts öffentlich machen. Auf Wunsch nenne ich dich im Changelog als Entdecker.
+1. Open the **Security** tab of this repository.
+2. Click **Report a vulnerability**.
+3. Describe what happens, how to reproduce it and which version is affected.
 
-## Unterstützte Versionen
+I will reply as soon as possible, but please give me a few days. Please do not make anything public until a fix has been released. If you like, I will credit you as the discoverer in the changelog.
 
-Sicherheitskorrekturen gibt es für die jeweils **neueste Version** (Branch `main`).
+## Supported versions
 
-## Was als Schwachstelle zählt
+Security fixes are provided for the **latest version** (branch `main`).
 
-Zum Beispiel:
+## What counts as a vulnerability
 
-- Zugriff auf das Panel oder auf Dateien außerhalb des Server-Ordners ohne Anmeldung oder ohne passende Rolle
-- Umgehen der Rollenprüfung (zum Beispiel ein Betrachter, der Befehle ausführen kann)
-- Auslesen von Passwörtern, Sitzungen, 2FA-Schlüsseln, der Webhook-Adresse oder dem Discord-Secret
-- Umgehen der Zwei-Faktor-Anmeldung oder der Anmelde-Sperre (außer über die bewusst vertrauenswürdige Discord-Anmeldung)
-- Entpacken von Archiven, das Dateien außerhalb des Server-Ordners schreibt
-- Einschleusen von Befehlen oder Skripten (Command Injection, XSS, CSRF)
+For example:
 
-Nicht dazu zählen: Probleme, die einen bereits angemeldeten Admin voraussetzen (er darf ohnehin Befehle ausführen), und fehlende Härtung durch eine ungeschützte Installation, etwa Betrieb ohne HTTPS im offenen Internet.
+- Access to the panel or to files outside the server folder without signing in or without the appropriate role
+- Bypassing the role check (for example a viewer who can run commands)
+- Reading out passwords, sessions, 2FA secrets, the webhook address or the Discord secret
+- Bypassing two-factor sign-in or the sign-in lockout (except via the deliberately trusted Discord sign-in)
+- Extracting archives in a way that writes files outside the server folder
+- Injecting commands or scripts (command injection, XSS, CSRF)
 
-## Empfehlungen für den Betrieb
+Not included: issues that require an already signed-in admin (who may run commands anyway), and missing hardening caused by an unprotected installation, such as running without HTTPS on the open internet.
 
-- Das Panel nur hinter HTTPS betreiben oder per SSH-Tunnel erreichen, nicht ungeschützt im Internet.
-- Mit einem eigenen Benutzer starten, nie als `root`.
-- Lange, einmalige Passwörter nutzen, die Zwei-Faktor-Anmeldung einschalten und den Hauptbenutzer schützen.
-- Hinter einem Reverse-Proxy `MCPANEL_TRUST_PROXY` passend setzen (siehe INSTALLATION.de.md), damit die Anmelde-Sperre die echten Besucher zählt.
-- `config.json` und `.env` nicht weitergeben. Sie enthalten Passwort-Hashes und Zugangsdaten.
-- Das Panel und Node.js aktuell halten.
+## Recommendations for operation
 
-Mehr dazu steht in [INSTALLATION.de.md](INSTALLATION.de.md) im Abschnitt „Absichern und erreichbar machen“.
+- Run the panel only behind HTTPS or reach it via an SSH tunnel, not unprotected on the internet.
+- Start it with a dedicated user, never as `root`.
+- Use long, unique passwords, enable two-factor sign-in and protect the main user.
+- Behind a reverse proxy, set `MCPANEL_TRUST_PROXY` appropriately (see INSTALLATION.md) so that the sign-in lockout counts the real visitors.
+- Do not share `config.json` and `.env`. They contain password hashes and credentials.
+- Keep the panel and Node.js up to date.
+
+More on this can be found in [INSTALLATION.md](INSTALLATION.md) in the section "Securing and exposing the panel".
