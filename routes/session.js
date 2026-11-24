@@ -2,6 +2,7 @@
 // Abmelden, eigenes Konto
 const { app } = require('../lib/app');
 const { clearSessionCookie, dropSessions, findUser, parseCookies, permsOf, roleDef, sessions } = require('../lib/auth');
+const inbox = require('../lib/inbox');
 const { EVENTS, dmReady, embed, sendDm } = require('../lib/notify');
 const { has2fa } = require('../lib/twofa');
 const { audit, checkPassword, config, ctxOf, httpError, saveConfig, sleep, wrap } = require('../lib/core');
@@ -81,6 +82,10 @@ app.post('/api/me/dm-test', wrap(async (req, res) => {
   catch (e) { throw httpError(502, 'Senden nicht möglich: ' + e.message); }
   res.json({ ok: true });
 }));
+// Posteingang mit den Benachrichtigungen, die ich im Panel bekommen habe
+app.get('/api/me/inbox', (req, res) => res.json(inbox.list(req.user)));
+app.post('/api/me/inbox/read', (req, res) => { inbox.markRead(req.user, Array.isArray(req.body.ids) ? req.body.ids.map(String) : null); res.json({ ok: true }); });
+app.delete('/api/me/inbox', (req, res) => { inbox.clear(req.user); res.json({ ok: true }); });
 // Auf allen Geräten abmelden
 app.post('/api/me/logout-all', (req, res) => {
   audit(ctxOf(req), 'logout', 'alle Sitzungen');

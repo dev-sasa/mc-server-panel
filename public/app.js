@@ -209,7 +209,7 @@ function showLogin() {
   if (ws) { ws.onclose = null; ws.close(); ws = null; }
   location.href = '/login';
 }
-$('#logoutBtn').onclick = async () => { await api('POST', '/api/logout').catch(() => {}); showLogin(); };
+$('#logoutBtn').onclick = async () => { closeUserMenu(); await api('POST', '/api/logout').catch(() => {}); showLogin(); };
 
 /* ---------- Rollen ---------- */
 let myRole = 'viewer', myPerms = new Set();
@@ -224,8 +224,13 @@ let myMc = null, myName = '', myRoleLabel = '';
 function renderWhoami(me) {
   if (me.version) $('#clBtnVer').textContent = 'v' + me.version;
   myMc = me.minecraft || null; myName = me.username; myRoleLabel = me.roleName;
+  const av = (s) => (myMc ? head(myMc.uuid, s) : fa('fa-solid fa-circle-user'));
   const b = $('#whoami'); b.textContent = '';
-  b.append(myMc ? head(myMc.uuid, 24) : fa('fa-solid fa-circle-user'), el('span', { textContent: `${me.username} · ${myRoleLabel}` }));
+  b.append(el('span', { className: 'uc-av' }, av(36)),
+    el('span', { className: 'uc-text' }, el('b', { textContent: me.username }), el('small', { textContent: myRoleLabel })),
+    fa('fa-solid fa-ellipsis-vertical uc-more'));
+  const hd = $('#umHead'); hd.textContent = '';
+  hd.append(el('span', { className: 'uc-av' }, av(36)), el('span', { className: 'uc-text' }, el('b', { textContent: me.username }), el('small', { textContent: myRoleLabel })));
 }
 
 async function boot() {
@@ -234,6 +239,7 @@ async function boot() {
   myRole = me.role;
   myPerms = new Set(me.perms || []);
   renderWhoami(me);
+  loadInbox();
   applyRole();
   connectWs();
   // Start-Seite aus der Adresse (/spieler, /dateien, ...); ohne Berechtigung -> Konsole
@@ -247,8 +253,8 @@ async function boot() {
 function renderThemeBtn() {
   const light = document.documentElement.dataset.theme === 'light';
   const b = $('#themeBtn'); b.textContent = '';
-  b.append(fa(light ? 'fa-solid fa-moon' : 'fa-solid fa-sun'));
   const label = light ? 'Dunkles Design' : 'Helles Design';
+  b.append(fa(light ? 'fa-solid fa-moon' : 'fa-solid fa-sun'), el('span', { textContent: label }));
   b.dataset.tip = label;
   b.setAttribute('aria-label', label);
 }
@@ -257,7 +263,7 @@ function setTheme(t, save) {
   if (save) { try { localStorage.setItem('mcp_theme', t); } catch {} }
   renderThemeBtn();
 }
-$('#themeBtn').onclick = () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light', true);
+$('#themeBtn').onclick = () => { setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light', true); closeUserMenu(); };
 matchMedia('(prefers-color-scheme: light)').addEventListener?.('change', (e) => {
   try { if (localStorage.getItem('mcp_theme')) return; } catch {}
   setTheme(e.matches ? 'light' : 'dark', false);
@@ -1332,7 +1338,22 @@ function renderAcc() {
   setBtn($('#accMcBtn'), 'fa-solid fa-link', myMc ? 'Ändern' : 'Verknüpfen');
 }
 const openPwDlg = () => { $('#pwCur').value = ''; $('#pwNew').value = ''; $('#pwErr').textContent = ''; renderAcc(); loadTf(); $('#pwDlg').showModal(); };
-$('#whoami').onclick = () => showTab('account');
+// Profil-Menü unten in der Seitenleiste: Mein Konto, Design, Abmelden
+const userMenu = $('#userMenu');
+function closeUserMenu() { userMenu.classList.add('hidden'); $('#whoami').setAttribute('aria-expanded', 'false'); }
+function openUserMenu() {
+  const r = $('#whoami').getBoundingClientRect();
+  userMenu.classList.remove('hidden');
+  userMenu.style.left = Math.max(8, Math.min(r.left, innerWidth - userMenu.offsetWidth - 8)) + 'px';
+  userMenu.style.bottom = (innerHeight - r.top + 8) + 'px';
+  $('#whoami').setAttribute('aria-expanded', 'true');
+  userMenu.querySelector('.um-item').focus();
+}
+$('#whoami').onclick = (e) => { e.stopPropagation(); userMenu.classList.contains('hidden') ? openUserMenu() : closeUserMenu(); };
+document.addEventListener('click', (e) => { if (!userMenu.classList.contains('hidden') && !e.target.closest('#userMenu')) closeUserMenu(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !userMenu.classList.contains('hidden')) { closeUserMenu(); $('#whoami').focus(); } });
+window.addEventListener('resize', closeUserMenu);
+$('#umAccount').onclick = () => { closeUserMenu(); showTab('account'); };
 $('#accMcBtn').onclick = () => openMcDlg({ self: true, current: myMc });
 
 /* ---------- Zwei-Faktor-Anmeldung (Konto-Dialog) ---------- */
@@ -2067,6 +2088,9 @@ $('#anSave').onclick = act(async () => {
 $('#anDmTest').onclick = act(async () => { await api('POST', '/api/me/dm-test'); }, 'Test-Nachricht gesendet – schau in deine Discord-Nachrichten.');
 // Hinweise vom Server (persönliche Benachrichtigungen)
 function showNotify(m) {
+  ib.items.unshift({ id: m.id, ts: m.ts || Date.now(), event: m.event, title: m.title, text: m.text, color: m.color, read: ib.open, fresh: ib.open });
+  if (!ib.open) ib.unread++; else api('POST', '/api/me/inbox/read', { ids: [m.id] }).catch(() => {});
+  renderBell(); if (ib.open) renderInbox();
   toast(m.title + (m.text ? ' – ' + m.text : ''), m.color === 'bad' ? 'err' : 'ok');
   try {
     if (document.hidden && localStorage.getItem('mcp_browser_notify') === '1' && 'Notification' in window && Notification.permission === 'granted') new Notification(m.title, { body: m.text || '', icon: '/logo.svg' });
@@ -2229,6 +2253,57 @@ async function loadChangelog() {
 }
 
 $('#clBtn').addEventListener('click', (e) => { e.preventDefault(); showTab('changelog'); });
+/* ---------- Benachrichtigungen (Glocke) ---------- */
+const IB_ICON = { start: ['fa-solid fa-circle-play', 'ok'], stop: ['fa-solid fa-stop', 'info'], crash: ['fa-solid fa-burst', 'bad'], backup: ['fa-solid fa-box-archive', 'ok'], backupFail: ['fa-solid fa-triangle-exclamation', 'bad'], lag: ['fa-solid fa-gauge-high', 'warn'], join: ['fa-solid fa-user', 'info'] };
+const ib = { open: false, items: [], unread: 0 };
+const inboxMenu = $('#inboxMenu');
+function renderBell() {
+  const c = $('#bellCount');
+  c.textContent = ib.unread > 99 ? '99+' : String(ib.unread);
+  c.classList.toggle('hidden', !ib.unread);
+  $('#bellBtn').classList.toggle('has', ib.unread > 0);
+}
+function renderInbox() {
+  const list = $('#ibList'); list.textContent = '';
+  if (!ib.items.length) {
+    list.append(el('div', { className: 'ib-empty' }, el('span', { className: 'ib-empty-ic' }, fa('fa-regular fa-bell-slash')), el('b', { textContent: 'Noch nichts passiert' }),
+      el('span', { textContent: 'Hier erscheinen die Benachrichtigungen, die du im Panel bekommst. Was dich interessiert, wählst du in den Einstellungen.' })));
+    return;
+  }
+  ib.items.forEach((n) => {
+    const [ic, tone] = IB_ICON[n.event] || ['fa-solid fa-bell', 'info'];
+    list.append(el('div', { className: 'ib-item ' + (n.read && !n.fresh ? '' : 'unread') },
+      el('span', { className: 'ib-ic ' + (n.color || tone) }, fa(ic)),
+      el('div', { className: 'ib-body' }, el('b', { textContent: String(n.title).replace(/^[^\p{L}\p{N}]+/u, '') }), n.text ? el('span', { textContent: n.text }) : '', el('small', { className: 'muted', textContent: fmtAgo(n.ts), title: fmtDate(n.ts) }))));
+  });
+}
+async function loadInbox() {
+  try { const d = await api('GET', '/api/me/inbox'); ib.items = d.items; ib.unread = d.unread; renderBell(); if (ib.open) renderInbox(); } catch {}
+}
+function placeInbox() {
+  const r = $('#bellBtn').getBoundingClientRect(), w = inboxMenu.offsetWidth;
+  inboxMenu.style.top = (r.bottom + 10) + 'px';
+  inboxMenu.style.left = Math.max(8, Math.min(r.right - w, innerWidth - w - 8)) + 'px';
+}
+async function openInbox() {
+  ib.open = true;
+  await loadInbox();
+  inboxMenu.classList.remove('hidden'); placeInbox();
+  $('#bellBtn').setAttribute('aria-expanded', 'true');
+  const hadUnread = ib.unread > 0;
+  ib.items.forEach((n) => { n.fresh = !n.read; });
+  renderInbox();
+  if (hadUnread) { try { await api('POST', '/api/me/inbox/read', {}); } catch {} ib.unread = 0; renderBell(); }
+}
+function closeInbox() { ib.open = false; inboxMenu.classList.add('hidden'); $('#bellBtn').setAttribute('aria-expanded', 'false'); ib.items.forEach((n) => { n.read = true; n.fresh = false; }); }
+$('#bellBtn').addEventListener('click', (e) => { e.stopPropagation(); ib.open ? closeInbox() : openInbox(); });
+document.addEventListener('click', (e) => { if (ib.open && !e.target.closest('#inboxMenu')) closeInbox(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && ib.open) { closeInbox(); $('#bellBtn').focus(); } });
+window.addEventListener('resize', () => { if (ib.open) placeInbox(); });
+$('#ibRead').onclick = async () => { try { await api('POST', '/api/me/inbox/read', {}); } catch {} ib.items.forEach((n) => { n.read = true; n.fresh = false; }); ib.unread = 0; renderBell(); renderInbox(); };
+$('#ibClear').onclick = async () => { try { await api('DELETE', '/api/me/inbox'); } catch {} ib.items = []; ib.unread = 0; renderBell(); renderInbox(); };
+$('#ibSettings').onclick = () => { closeInbox(); showTab('account'); };
+
 // Sprache umschalten (Deutsch / English)
 $$('.lang-seg button').forEach((b) => {
   b.classList.toggle('on', b.dataset.lang === LANG);

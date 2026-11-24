@@ -130,3 +130,28 @@ test('Überall abmelden beendet alle Sitzungen', async () => {
   assert.equal((await x.post('/api/me/logout-all')).status, 200);
   assert.equal((await y.get('/api/status')).status, 401);
 });
+
+test('Posteingang: Meldungen werden gespeichert, gelesen und geleert', { timeout: 40000 }, async () => {
+  const q = await startPanel();
+  try {
+    const u = await q.admin();
+    assert.equal((await u.put('/api/me/notifications', { panel: true, events: { start: true } })).status, 200);
+    assert.deepEqual((await u.get('/api/me/inbox')).json, { items: [], unread: 0 });
+    await u.post('/api/server/start'); // der Benutzer ist per HTTP, nicht per WebSocket verbunden – die Meldung muss trotzdem im Posteingang landen
+    const t0 = Date.now();
+    let box;
+    while (Date.now() - t0 < 25000) { box = (await u.get('/api/me/inbox')).json; if (box.items.length) break; await new Promise((r) => setTimeout(r, 200)); }
+    assert.equal(box.items[0].event, 'start');
+    assert.equal(box.unread, 1);
+    assert.equal(box.items[0].read, false);
+    assert.equal((await u.post('/api/me/inbox/read', { ids: [box.items[0].id] })).status, 200);
+    assert.equal((await u.get('/api/me/inbox')).json.unread, 0);
+    // fremde Posteingänge sind getrennt
+    await u.post('/api/users', { username: 'zz', password: 'passwort123', role: 'viewer' });
+    const z = await q.client().login('zz', 'passwort123');
+    assert.deepEqual((await z.get('/api/me/inbox')).json.items, []);
+    assert.equal((await u.del('/api/me/inbox')).status, 200);
+    assert.equal((await u.get('/api/me/inbox')).json.items.length, 0);
+    await u.post('/api/server/stop');
+  } finally { await q.stop(); }
+});

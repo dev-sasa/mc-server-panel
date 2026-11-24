@@ -44,10 +44,13 @@
       <a href="/konto" data-tab="account" class="hidden" aria-hidden="true" tabindex="-1">Mein Konto</a>
     </nav>
     <div class="side-foot">
-      <button class="btn" id="whoami" data-tip="Mein Konto" aria-label="Mein Konto"></button>
-      <div class="foot-row">
-        <button class="btn" id="themeBtn" data-tip="Hell/Dunkel umschalten" aria-label="Hell/Dunkel umschalten"></button>
-        <button class="btn" id="logoutBtn" data-tip="Abmelden" aria-label="Abmelden"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span class="nav-text"> Abmelden</span></button>
+      <button class="user-btn" id="whoami" aria-haspopup="menu" aria-expanded="false" aria-controls="userMenu" aria-label="Mein Konto"></button>
+      <div class="um-menu hidden" id="userMenu" role="menu" aria-label="Mein Konto">
+        <div class="um-head" id="umHead"></div>
+        <button class="um-item" id="umAccount" role="menuitem"><i class="fa-solid fa-user-gear" aria-hidden="true"></i><span>Mein Konto</span></button>
+        <button class="um-item" id="themeBtn" role="menuitem" aria-label="Hell/Dunkel umschalten"></button>
+        <div class="um-sep" role="separator"></div>
+        <button class="um-item um-out" id="logoutBtn" role="menuitem"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Abmelden</span></button>
       </div>
     </div>
   </aside>
@@ -58,6 +61,7 @@
       <button class="btn ic" id="menuBtn" aria-label="Menü öffnen"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
       <h1 id="pageTitle">Konsole</h1>
       <div class="tb-right">
+        <button class="tb-chip tb-bell" id="bellBtn" aria-haspopup="true" aria-expanded="false" aria-controls="inboxMenu" title="Benachrichtigungen" aria-label="Benachrichtigungen"><i class="fa-solid fa-bell" aria-hidden="true"></i><span class="tb-badge hidden" id="bellCount">0</span></button>
         <a class="tb-chip" id="clBtn" href="/changelog" title="Changelog" aria-label="Changelog"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span id="clBtnVer"></span></a>
         <span class="status-pill tb-status" id="topPill" title="Server-Status"><span class="dot" id="topDot"></span><span id="topState">–</span><span class="pill-up" id="topUp"></span></span>
       </div>
@@ -778,6 +782,13 @@
     <div class="row end"><button class="btn" id="modDlgClose" type="button">Schließen</button></div>
   </form>
 </dialog>
+
+<!-- Benachrichtigungen (Glocke) -->
+<div class="inbox-menu hidden" id="inboxMenu" role="dialog" aria-label="Benachrichtigungen">
+  <div class="ib-head"><b>Benachrichtigungen</b><span class="ib-act"><button type="button" class="ib-link" id="ibRead">Alle gelesen</button><button type="button" class="ib-link" id="ibClear">Leeren</button></span></div>
+  <div class="ib-list" id="ibList"></div>
+  <div class="ib-foot"><button type="button" class="ib-link" id="ibSettings"><i class="fa-solid fa-gear" aria-hidden="true"></i> Einstellungen</button></div>
+</div>
 
 <!-- Zwei-Faktor einrichten -->
 <dialog id="tfDlg">

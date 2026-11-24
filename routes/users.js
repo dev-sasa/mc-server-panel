@@ -2,6 +2,7 @@
 // Benutzer, Rollen, Protokoll
 const crypto = require('crypto');
 const { app } = require('../lib/app');
+const inbox = require('../lib/inbox');
 const { BUILTIN, PERMS, PERM_KEYS, USER_RE, allRoles, dropSessions, findUser, isAdminRole, permsOf, requiredPerm, roleDef, roleOf, sessions, subset } = require('../lib/auth');
 const { audit, config, ctxOf, hashPassword, httpError, readAudit, saveConfig, wrap } = require('../lib/core');
 const { clients } = require('../lib/minecraft');
@@ -66,6 +67,7 @@ app.put('/api/users/:name', wrap(async (req, res) => {
     const old = u.username;
     audit(ctxOf(req), 'user_rename', `${old} → ${nn}`);
     u.username = nn;
+    inbox.rename(old, nn);
     // laufende Sitzungen und Live-Verbindungen auf den neuen Namen umstellen (sonst würde man abgemeldet)
     for (const sess of sessions.values()) if (sess.username === old) sess.username = nn;
     for (const w of clients) if (w.username === old) w.username = nn;
@@ -106,6 +108,7 @@ app.delete('/api/users/:name', wrap(async (req, res) => {
   if (config.users.length <= 1) throw httpError(400, 'Der letzte Benutzer kann nicht gelöscht werden');
   if (u.username === req.user) throw httpError(400, 'Du kannst dich nicht selbst löschen');
   config.users = config.users.filter((x) => x !== u);
+  inbox.drop(u.username);
   dropSessions(u.username);
   saveConfig();
   audit(ctxOf(req), 'user_delete', u.username);

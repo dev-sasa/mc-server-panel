@@ -6,6 +6,15 @@ Alle wichtigen Änderungen an diesem Projekt stehen hier. Das Format orientiert 
 
 ## [Unveröffentlicht]
 
+## [1.0.3] – 2026-11-24
+
+### Hinzugefügt
+- **Benachrichtigungs-Zentrale:** Neben dem Changelog-Knopf sitzt eine Glocke mit Zähler. Sie zeigt die Meldungen, die du im Panel bekommen hast, auch wenn du gerade nicht angemeldet warst (Absturz, Backup, Server online …). Mit „Alle gelesen“ und „Leeren“, gespeichert in `notifications.json` (je Benutzer die letzten 100).
+
+### Geändert
+- Unten in der Seitenleiste steht eine Profilkarte mit Avatar, Name und Rolle. Ein Klick öffnet ein kleines Menü mit „Mein Konto“, dem Wechsel zwischen hellem und dunklem Design und „Abmelden“.
+- Bei niedrigen Fenstern scrollt nur noch das Menü der Seitenleiste; das Profil bleibt unten immer sichtbar.
+
 ## [1.0.2] – 2026-11-23
 
 ### Hinzugefügt
@@ -72,6 +81,7 @@ Erste veröffentlichte Version.
 - Dev-Modus mit simuliertem Minecraft-Server (`npm run dev`).
 - Anleitung für die Installation auf einem Linux-Server (`INSTALLATION.de.md`).
 
+[1.0.3]: https://github.com/dev-sasa/mc-server-panel/releases/tag/v1.0.3
 [1.0.2]: https://github.com/dev-sasa/mc-server-panel/releases/tag/v1.0.2
 [1.0.1]: https://github.com/dev-sasa/mc-server-panel/releases/tag/v1.0.1
 [1.0.0]: https://github.com/dev-sasa/mc-server-panel/releases/tag/v1.0.0

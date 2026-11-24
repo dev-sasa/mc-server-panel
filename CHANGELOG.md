@@ -6,6 +6,15 @@ All notable changes to this project are listed here. The format is based on [Kee
 
 ## [Unreleased]
 
+## [1.0.3] – 2026-11-24
+
+### Added
+- **Notification center:** A bell with a counter next to the changelog button shows the messages you received in the panel, even if you were not signed in at the time (crash, backup, server online …). With "Mark all read" and "Clear", stored in `notifications.json` (the latest 100 per user).
+
+### Changed
+- The sidebar now ends with a profile card showing avatar, name and role. Clicking it opens a small menu with "My account", the light/dark theme switch and "Sign out".
+- On short windows only the sidebar menu scrolls; the profile always stays visible at the bottom.
+
 ## [1.0.2] – 2026-11-23
 
 ### Added
@@ -72,6 +81,7 @@ First published version.
 - Dev mode with a simulated Minecraft server (`npm run dev`).
 - Guide for installation on a Linux server (`INSTALLATION.md`).
 
+[1.0.3]: https://github.com/dev-sasa/mc-server-panel/releases/tag/v1.0.3
 [1.0.2]: https://github.com/dev-sasa/mc-server-panel/releases/tag/v1.0.2
 [1.0.1]: https://github.com/dev-sasa/mc-server-panel/releases/tag/v1.0.1
 [1.0.0]: https://github.com/dev-sasa/mc-server-panel/releases/tag/v1.0.0

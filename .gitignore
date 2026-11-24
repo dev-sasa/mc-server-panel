@@ -6,6 +6,7 @@ config.json
 audit.jsonl*
 mods.json
 playerlog.json
+notifications.json
 server/
 server.before-restore/
 backups/
